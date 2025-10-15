@@ -1,0 +1,67 @@
+@import 'tailwindcss';
+
+:root {
+    --azul: #0c202d;
+    --turquesa: #0ec49f;
+    --verde: #00d084;
+    --negro: #0d0d0d;
+    --blanco: #cfd6dc;
+    --gris: #43494e;
+}
+
+@font-face {
+    font-family: 'Quantum';
+    src: url('/fonts/Quantum.otf') format('opentype');
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: 'BankGothic';
+    src: url('/fonts/BankGothic-Medium.ttf') format('truetype');
+    font-weight: 600;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('/fonts/Roboto-Regular.ttf') format('truetype');
+    font-weight: 400;
+}
+
+.font-quantum {
+    font-family: 'Quantum', sans-serif;
+}
+
+.font-bankgothic {
+    font-family: 'BankGothic', sans-serif;
+}
+.bg-turquesa{
+    background-color: var(--turquesa);
+}
+.text-turquesa{
+    color: var(--turquesa);
+}
+html {
+    font-size: 100%;
+    line-height: 1.15;
+    background-color: rgb(225, 225, 225);
+    font-family: 'Roboto', sans-serif;
+    height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    scroll-behavior: smooth;
+    text-rendering: optimizeSpeed;
+    background-color: rgb(225, 225, 225);
+    font-family: 'Roboto', sans-serif;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'BankGothic', sans-serif;
+}
