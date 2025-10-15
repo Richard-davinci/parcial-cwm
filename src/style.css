@@ -8,7 +8,7 @@
     --blanco: #cfd6dc;
     --gris: #43494e;
 }
-
+/*estilos*/
 @font-face {
     font-family: 'Quantum';
     src: url('/fonts/Quantum.otf') format('opentype');
