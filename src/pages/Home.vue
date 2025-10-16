@@ -6,7 +6,7 @@
       </h1>
       <p class="text-gray-300 text-lg leading-relaxed mb-8">
         Unite a una comunidad donde los desarrolladores comparten ideas, proyectos y experiencias.
-        Inspirate con lo que otros están creando y mostrá tu propio trabajo matutino.
+        Inspirate con lo que otros están creando y mostrá tu propio trabajo.
       </p>
 
       <div class="flex flex-col sm:flex-row items-center justify-center gap-4">

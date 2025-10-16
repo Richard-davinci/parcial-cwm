@@ -16,7 +16,7 @@
         <li>
           <RouterLink :class="{ 'opacity-75': $route.path === '/ingresar' }"
                       class="bg-turquesa text-black font-bankgothic py-2 px-6 rounded-lg"
-                      to="/ingresar">Login
+                      to="/ingresar">Ingresar
           </RouterLink>
         </li>
         <li>
