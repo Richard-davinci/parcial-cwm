@@ -24,11 +24,12 @@ jobs:
       - name: 🏗️ Construir proyecto
         run: npm run build
 
-      - name: 🚀 Subir por FTP a Hostinger
+      - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          port: 21
           local-dir: dist
           server-dir: public_html
