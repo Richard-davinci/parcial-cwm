@@ -1,8 +1,8 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center bg-gray-950 text-white px-6 py-20">
+  <div class="flex flex-col items-center justify-center bg-gray-950 text-white px-6 py-20">
     <div class="text-center max-w-3xl">
       <h1 class="text-4xl md:text-5xl font-bankgothic text-turquesa mb-4">
-        Bienvenido a Lili-Studio Comunidad Dev
+        Bienvenido a Lili-Studio Comunidad
       </h1>
       <p class="text-gray-300 text-lg leading-relaxed mb-8">
         Unite a una comunidad donde los desarrolladores comparten ideas, proyectos y experiencias.

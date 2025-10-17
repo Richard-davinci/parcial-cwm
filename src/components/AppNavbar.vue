@@ -178,77 +178,72 @@
 
 </template>
 
-<script setup>
-import {onMounted, onUnmounted, ref, watch} from "vue";
-import {RouterLink, useRouter} from "vue-router";
+<script>
+import {watch} from "vue";
+import {useRouter} from "vue-router";
 import {logout, subscribeToAuthStateChanges} from "../services/auth";
 
-const router = useRouter();
-const menuOpen = ref(false);
-const user = ref({id: null, email: null});
+export default {
+  name: "AppNavbar",
 
-const toggleMenu = () => {
-  menuOpen.value = !menuOpen.value;
-};
-
-const closeMenu = () => {
-  menuOpen.value = false;
-};
-
-const onLogoutFromOverlay = async () => {
-  closeMenu();
-  await handleLogout();
-};
-
-const handleLogout = async () => {
-  await logout();
-  router.push("/ingresar");
-};
-
-onMounted(() => {
-  const unsubscribe = subscribeToAuthStateChanges((newUser) => {
-    user.value = newUser;
-  });
-
-  onUnmounted(() => {
-    if (typeof unsubscribe === "function") unsubscribe();
-  });
-});
-
-
-watch(
-  () => menuOpen.value,
-  (isOpen) => {
-    const root = document.documentElement; // <html>
-    if (isOpen) {
-      root.classList.add("overflow-hidden");
-    } else {
-      root.classList.remove("overflow-hidden");
-    }
+  data() {
+    return {
+      menuOpen: false,
+      user: {id: null, email: null},
+    };
   },
-  {immediate: false}
-);
+
+  created() {
+    // Suscripción al estado de autenticación
+    this.unsubscribe = subscribeToAuthStateChanges((newUser) => {
+      this.user = newUser;
+    });
+  },
+
+  mounted() {
+    // Bloqueo de scroll cuando el menú se abre
+    this.stopWatch = watch(
+      () => this.menuOpen,
+      (isOpen) => {
+        const root = document.documentElement;
+        if (isOpen) {
+          root.classList.add("overflow-hidden");
+        } else {
+          root.classList.remove("overflow-hidden");
+        }
+      }
+    );
+  },
+
+  beforeUnmount() {
+    // Cancelar suscripción al auth si existe
+    if (typeof this.unsubscribe === "function") this.unsubscribe();
+    if (this.stopWatch) this.stopWatch();
+  },
+
+  methods: {
+    toggleMenu() {
+      this.menuOpen = !this.menuOpen;
+    },
+
+    closeMenu() {
+      this.menuOpen = false;
+    },
+
+    async onLogoutFromOverlay() {
+      this.closeMenu();
+      await this.handleLogout();
+    },
+
+    async handleLogout() {
+      await logout();
+      this.$router.push("/ingresar");
+    },
+  },
+
+  setup() {
+    const router = useRouter();
+    return {router};
+  },
+};
 </script>
-
-<style scoped>
-.overlay-enter-active,
-.overlay-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.overlay-enter-from,
-.overlay-leave-to {
-  opacity: 0;
-}
-
-.slide-left-enter-active,
-.slide-left-leave-active {
-  transition: transform 0.25s ease, opacity 0.25s ease;
-}
-
-.slide-left-enter-from,
-.slide-left-leave-to {
-  transform: translateX(-10%);
-  opacity: 0;
-}
-</style>

@@ -4,8 +4,8 @@
     <div class="container mx-auto px-4">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
         <div class="lg:col-span-4 flex justify-center lg:justify-start">
-          <RouterLink class="flex items-center" to="/">
-            <img alt="logo" class="w-1/2" src="/img/logo.png">
+          <RouterLink class="flex items-center text-2xl font-quantum text-white" to="/">
+            Lili-Studio Comunidad
           </RouterLink>
         </div>
         <div class="lg:col-span-8">
@@ -32,8 +32,11 @@
 </template>
 
 <script>
+import {RouterLink} from "vue-router";
+
 export default {
   name: 'AppFooter',
+  components: {RouterLink},
 }
 </script>
 
