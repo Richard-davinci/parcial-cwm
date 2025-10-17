@@ -84,7 +84,9 @@
       role="dialog"
     >
       <div class="h-full w-full flex flex-col">
-        <div class="h-16 px-6 flex items-center justify-between">
+        <!-- invertimos el orden con flex-row-reverse -->
+        <div class="h-16 px-6 flex flex-row-reverse items-center justify-between">
+          <!-- botón ✕ ahora a la derecha -->
           <button
             aria-label="Cerrar menú"
             class="text-2xl leading-none text-turquesa"
@@ -92,20 +94,25 @@
           >
             ✕
           </button>
-          <div class="text-2xl font-bankgothic">
+          <!-- título ahora a la izquierda -->
+          <div class="text-2xl font-quantum">
             Lili-Studio Comunidad
           </div>
           <div class="w-8"></div>
         </div>
+
         <transition appear name="slide-left">
           <ul
             key="mobile-menu"
-            class="mt-6 px-6 flex flex-col gap-4 text-lg font-bankgothic"
+            class="mt-6 px-6 flex flex-col gap-4 text-lg font-bankgothic items-end text-right"
           >
             <li>
               <RouterLink
                 :class="{ 'text-turquesa': $route.path === '/' }"
-                class="block py-2" to="/" @click="closeMenu">
+                class="block py-2"
+                to="/"
+                @click="closeMenu"
+              >
                 Inicio
               </RouterLink>
             </li>
@@ -114,19 +121,28 @@
               <li>
                 <RouterLink
                   :class="{ 'text-turquesa': $route.path === '/feed' }"
-                  class="block py-2" to="/feed" @click="closeMenu">
+                  class="block py-2"
+                  to="/feed"
+                  @click="closeMenu"
+                >
                   Comunidad
                 </RouterLink>
               </li>
               <li>
                 <RouterLink
                   :class="{ 'text-turquesa': $route.path === '/mi-perfil' }"
-                  class="block py-2" to="/mi-perfil" @click="closeMenu">
+                  class="block py-2"
+                  to="/mi-perfil"
+                  @click="closeMenu"
+                >
                   Mi Perfil
                 </RouterLink>
               </li>
               <li>
-                <button class="block py-2 text-left text-red-800" @click="onLogoutFromOverlay">
+                <button
+                  class="block py-2 text-right text-red-800"
+                  @click="onLogoutFromOverlay"
+                >
                   Cerrar sesión
                 </button>
               </li>
@@ -136,14 +152,20 @@
               <li>
                 <RouterLink
                   :class="{ 'text-turquesa': $route.path === '/ingresar' }"
-                  class="block py-2" to="/ingresar" @click="closeMenu">
+                  class="block py-2"
+                  to="/ingresar"
+                  @click="closeMenu"
+                >
                   Ingresar
                 </RouterLink>
               </li>
               <li>
                 <RouterLink
                   :class="{ 'text-turquesa': $route.path === '/crear-cuenta' }"
-                  class="block py-2" to="/crear-cuenta" @click="closeMenu">
+                  class="block py-2"
+                  to="/crear-cuenta"
+                  @click="closeMenu"
+                >
                   Crear cuenta
                 </RouterLink>
               </li>
@@ -153,6 +175,7 @@
       </div>
     </div>
   </transition>
+
 </template>
 
 <script setup>
