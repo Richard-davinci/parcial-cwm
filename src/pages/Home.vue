@@ -16,13 +16,6 @@
         >
           Ver muro
         </router-link>
-
-        <router-link
-          class="bg-gray-800 hover:bg-gray-700 text-white font-bankgothic py-3 px-8 rounded-lg transition-colors text-lg"
-          to="/crear-publicacion"
-        >
-          Crear publicación
-        </router-link>
       </div>
     </div>
 

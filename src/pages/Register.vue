@@ -62,8 +62,7 @@ export default {
           <input
             id="display_name"
             v-model="user.display_name"
-            class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white placeholder-gray-500"
-            placeholder="Ej: Ricardo García"
+            class="w-full px-4 py-2 roundd-lg bg-gray-800 border border-gray-700 focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white placeholder-gray-500"
             required
             type="text"
           />
