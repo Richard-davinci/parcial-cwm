@@ -156,7 +156,7 @@ export default {
       >
         <!-- Avatar + nombre + fecha -->
         <div class="flex items-center gap-3 mb-3 ">
-          <RouterLink :to="`/mi-perfil/${post.user_id}`" class="flex items-center gap-3 group">
+          <RouterLink :to="`/usuario/${post.user_id}`" class="flex items-center gap-3 group">
             <img
               :src="post.user_profiles?.avatar_url || '/img/default-avatar.png'"
               alt="Avatar"

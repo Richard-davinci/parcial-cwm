@@ -15,8 +15,7 @@
 
           <h1 class="text-3xl font-bankgothic text-turquesa mb-2">{{ user.display_name || 'Sin nombre' }}</h1>
           <p class="text-gray-400 text-sm mb-1">@{{ user.username || 'sin_username' }}</p>
-          <p class="text-gray-400 text-sm mb-4">{{ user.email || 'Email no disponible' }}</p>
-
+<!--          <p class="text-gray-400 text-sm mb-4">{{ user.email || 'Email no disponible' }}</p>-->
           <p class="text-lg text-gray-300 mb-2">{{ user.career || 'Carrera no especificada' }}</p>
           <p class="text-sm text-gray-400 mb-4">{{ user.location || 'Ubicación no especificada' }}</p>
 
@@ -24,15 +23,9 @@
             v-if="user.available_for_work"
             class="bg-green-700 text-white text-xs px-3 py-1 rounded-full mb-4"
           >
-            Disponible para trabajar
+            Disponible
           </span>
 
-          <RouterLink
-            class="bg-turquesa text-black font-bankgothic px-6 py-2 rounded-lg hover:bg-[#0db38f] transition-colors"
-            to="/mi-perfil/editar"
-          >
-            Editar perfil
-          </RouterLink>
         </div>
       </div>
 
@@ -49,8 +42,8 @@
           </div>
 
           <div>
-            <h2 class="text-2xl font-bankgothic text-turquesa mb-2">Años de experiencia</h2>
-            <p class="text-gray-300">{{ user.experience_years || 'No especificado' }}</p>
+            <h2 class="text-2xl font-bankgothic text-turquesa mb-2">Años de experiencia: <span class="text-white">{{ user.experience_years || 'No especificado' }}</span> </h2>
+
           </div>
 
           <div v-if="user.website_url">
@@ -78,50 +71,23 @@
             <p>Última actualización: {{ formatDate(user.updated_at) }}</p>
           </div>
 
-          <div class="mt-10">
-            <h3 class="text-xl font-bankgothic text-turquesa mb-4">🌐 Redes y enlaces</h3>
-            <div class="">
-
-              <div v-if="user.github_url" class="my-5">
-                <label class="block text-gray-400 text-sm mb-2">GitHub</label>
-                <a
-                  :href="user.github_url"
-                  class="block bg-gray-800 text-turquesa px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-                  target="_blank"
-                >
-                  {{ user.github_url }}
-                </a>
-              </div>
-
-              <div v-if="user.linkedin_url  " class="my-5">
-                <label class="block text-gray-400 text-sm mb-2">LinkedIn</label>
-                <a
-                  :href="user.linkedin_url"
-                  class="block bg-gray-800 text-turquesa px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-                  target="_blank"
-                >
-                  {{ user.linkedin_url }}
-                </a>
-              </div>
-
-              <div v-if="user.instagram_url " class="my-5">
-                <label class="block text-gray-400 text-sm mb-2">Instagram</label>
-                <a
-                  :href="user.instagram_url"
-                  class="block bg-gray-800 text-turquesa px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-                  target="_blank"
-                >
-                  {{ user.instagram_url }}
-                </a>
-              </div>
-            </div>
+          <div class="flex space-x-4 pt-4 border-t border-gray-800">
+            <a v-if="user.github_url" :href="user.github_url" class="text-gray-400 hover:text-turquesa text-2xl" target="_blank">
+              <i class="bi bi-github"></i>
+            </a>
+            <a v-if="user.linkedin_url" :href="user.linkedin_url" class="text-gray-400 hover:text-turquesa text-2xl" target="_blank">
+              <i class="bi bi-linkedin"></i>
+            </a>
+            <a v-if="user.instagram_url" :href="user.instagram_url" class="text-gray-400 hover:text-turquesa text-2xl" target="_blank">
+              <i class="bi bi-instagram"></i>
+            </a>
           </div>
         </div>
       </div>
     </div>
 
     <div class="max-w-6xl mx-auto mt-16">
-      <h2 class="text-3xl font-bankgothic text-turquesa mb-8">Mis publicaciones</h2>
+      <h2 class="text-3xl font-bankgothic text-turquesa mb-8">Publicaciones</h2>
       <div v-if="posts.length > 0" class="space-y-6">
         <div
           v-for="post in posts"
@@ -158,21 +124,14 @@
 </template>
 
 <script>
-import {getUserProfileById} from "../services/user-profiles.js";
-import {subscribeToAuthStateChanges} from "../services/auth.js";
-import {supabase} from "../services/supabase.js";
-import userProfile from "./UserProfile.vue";
+import { getUserProfileById } from "../services/user-profiles.js";
+import { subscribeToAuthStateChanges } from "../services/auth.js";
+import { supabase } from "../services/supabase.js";
 
-let unsubscribeFromAuth = () => {
-};
+let unsubscribeFromAuth = () => {};
 
 export default {
   name: "MyProfile",
-  computed: {
-    userProfile() {
-      return userProfile
-    }
-  },
   data() {
     return {
       user: {},
@@ -191,11 +150,11 @@ export default {
   },
   methods: {
     async loadUserPosts() {
-      const {data, error} = await supabase
+      const { data, error } = await supabase
         .from("post")
         .select("*")
         .eq("user_id", this.user.id)
-        .order("created_at", {ascending: false});
+        .order("created_at", { ascending: false });
 
       if (!error) this.posts = data;
     },

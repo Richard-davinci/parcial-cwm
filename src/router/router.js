@@ -7,6 +7,7 @@ import Login from "../pages/Login.vue";
 import Register from "../pages/Register.vue";
 import MyProfile from "../pages/MyProfile.vue";
 import MyProfileEdit from "../pages/MyProfileEdit.vue";
+import UserProfile from "../../../parcial-cwm/src/pages/UserProfile.vue";
 
 
 const routes = [
@@ -16,6 +17,9 @@ const routes = [
   {path: "/crear-cuenta", component: Register},
   {path: "/mi-perfil", component: MyProfile, meta: {requiresAuth: true}},
   {path: "/mi-perfil/editar", component: MyProfileEdit, meta: {requiresAuth: true}},
+  {path: "/usuario/:id", component: UserProfile, meta: {requiresAuth: true}},
+
+
 ];
 
 const router = createRouter({
