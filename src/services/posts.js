@@ -34,9 +34,8 @@ export async function fetchPosts() {
       user_id,
       user_profiles (
         username,
-        display_name,        
-        avatar_url,
-        
+        display_name,
+        avatar_url
       )
     `)
     .order('created_at', {ascending: false});
