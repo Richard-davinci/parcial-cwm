@@ -66,8 +66,8 @@ export default {
   <div class="max-w-5xl mx-auto p-8">
     <!-- Botón flotante -->
     <button
-      @click="showModal = true"
       class="fixed bottom-6 right-6 bg-turquesa text-black font-bankgothic px-6 py-3 rounded-full shadow-lg hover:bg-[#0db38f] transition-all duration-300"
+      @click="showModal = true"
     >
       Nueva publicación
     </button>
@@ -76,18 +76,15 @@ export default {
     <transition name="fade-scale">
       <div
         v-if="showModal"
-        class="fixed inset-0 bg-turquesa/70 flex items-center justify-center "
-      >
-        <div
-          class="bg-gray-900 border border-gray-700 rounded-xl p-8 max-w-lg w-full shadow-xl"
-        >
+        class="fixed inset-0 bg-turquesa/70 flex items-center justify-center ">
+        <div class="bg-gray-900 border border-gray-700 rounded-xl p-8 max-w-lg w-full shadow-xl">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bankgothic text-turquesa">
               Crear nueva publicación
             </h2>
             <button
-              @click="showModal = false"
               class="text-2xl text-turquesa hover:text-white transition"
+              @click="showModal = false"
             >
               ✕
             </button>
@@ -162,7 +159,9 @@ export default {
               alt="Avatar"
               class="w-10 h-10 rounded-full border border-gray-700 "
             />
-            <span class="font-bankgothic text-white">{{ post.user_profiles?.display_name || post.user_profiles?.username || 'Usuario' }}</span>
+            <span class="font-bankgothic text-white">{{
+                post.user_profiles?.display_name || post.user_profiles?.username || 'Usuario'
+              }}</span>
           </RouterLink>
           <span class="text-xs text-gray-500 ml-auto">
         {{ new Date(post.created_at).toLocaleString() }}
@@ -219,12 +218,12 @@ export default {
 </template>
 
 
-
 <style scoped>
 .fade-scale-enter-active,
 .fade-scale-leave-active {
   transition: all 0.25s ease;
 }
+
 .fade-scale-enter-from,
 .fade-scale-leave-to {
   opacity: 0;

@@ -1,31 +1,87 @@
 <script>
-import {login} from '../services/auth.js';
+/**
+ * ===========================================================
+ * Login.vue — Componente de inicio de sesión
+ * ===========================================================
+ * Descripción:
+ *   Este componente gestiona el proceso de autenticación de usuarios
+ *   mediante email y contraseña. Valida los campos, llama al servicio
+ *   `auth.js` para autenticar, y redirige al perfil si el login es exitoso.
+ *
+ * Relación con otros servicios:
+ *   - services/auth.js → usa la función `login(email, password)` para autenticar.
+ *   - router.js        → redirige a `/mi-perfil` tras el inicio de sesión.
+ *
+ * Índice de funciones:
+ *   1) data()                  → Estado local del formulario
+ *   2) handleSubmit()         → Maneja el envío del formulario y la autenticación
+ *
+ * Errores comunes:
+ *   - Credenciales incorrectas: Supabase lanza error si el email/contraseña no coinciden.
+ *   - Campos vacíos: deben validarse antes de llamar a `login()`.
+ *   - Sesión activa previa: si ya hay sesión, podría redirigir directamente sin pasar por login.
+ * ===========================================================
+ */
+
+import { login } from '../services/auth.js';
 
 export default {
   name: 'Login',
+
+  /**
+   * -----------------------------------------------------------
+   * data()
+   * -----------------------------------------------------------
+   * Estado reactivo del componente:
+   *   - user.email / user.password → valores de los campos del formulario.
+   *   - loading                    → indica si la petición de login está en proceso.
+   */
   data() {
     return {
       user: {
-        email: '',
-        password: '',
+        email: '',     // correo ingresado por el usuario
+        password: '',  // contraseña ingresada
       },
-      loading: false,
-    }
+      loading: false,  // controla estado del botón de envío (ej. spinner/deshabilitado)
+    };
   },
+
   methods: {
+    /**
+     * -----------------------------------------------------------
+     * handleSubmit()
+     * -----------------------------------------------------------
+     * Objetivo:
+     *   - Validar y enviar las credenciales al servicio `auth.js`.
+     *   - Manejar errores de autenticación.
+     *   - Redirigir al perfil del usuario al iniciar sesión con éxito.
+     *
+     * Flujo:
+     *   a) Cambia `loading` a true para indicar que se está procesando.
+     *   b) Llama a `login(email, password)` desde `auth.js`.
+     *   c) Si el login es exitoso, redirige al perfil (`/mi-perfil`).
+     *   d) Captura y muestra errores si la autenticación falla.
+     *   e) Restaura `loading` a false al finalizar.
+     *
+     * Validaciones recomendadas (a implementar en UI):
+     *   - Verificar que email y password no estén vacíos antes del submit.
+     *   - Manejar mensajes de error personalizados según el código devuelto por Supabase.
+     */
     async handleSubmit() {
       try {
-        this.loading = true;
-        await login(this.user.email, this.user.password)
-        this.$router.push('/mi-perfil')
+        this.loading = true; // activa el estado de carga
+        await login(this.user.email, this.user.password); // llama al servicio de autenticación
+        this.$router.push('/mi-perfil'); // redirige al perfil si fue exitoso
       } catch (error) {
+        // Maneja y registra errores (ej. credenciales incorrectas)
         console.error('Error al iniciar sesión:', error);
       }
-      this.loading = false;
-    }
-  }
-}
+      this.loading = false; // finaliza el estado de carga, incluso si hubo error
+    },
+  },
+};
 </script>
+
 
 <template>
   <div class="py-10 flex items-center justify-center text-white">
