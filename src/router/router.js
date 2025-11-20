@@ -7,7 +7,7 @@ import Login from "../pages/Login.vue";
 import Register from "../pages/Register.vue";
 import MyProfile from "../pages/MyProfile.vue";
 import MyProfileEdit from "../pages/MyProfileEdit.vue";
-import UserProfile from "../../../parcial-cwm/src/pages/UserProfile.vue";
+import UserProfile from "../pages/UserProfile.vue";
 
 
 const routes = [

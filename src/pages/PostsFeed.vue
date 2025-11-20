@@ -66,7 +66,7 @@ export default {
   <div class="max-w-5xl mx-auto p-8">
     <!-- Botón flotante -->
     <button
-      class="fixed bottom-6 right-6 bg-turquesa text-black font-bankgothic px-6 py-3 rounded-full shadow-lg hover:bg-[#0db38f] transition-all duration-300"
+      class="fixed bottom-6 right-6 bg-turquesa text-turquesa font-bankgothic px-6 py-3 rounded-full shadow-lg hover:bg-[#0db38f] transition-all duration-300"
       @click="showModal = true"
     >
       Nueva publicación
@@ -144,7 +144,9 @@ export default {
       </div>
     </transition>
 
+
     <!-- Listado de posts -->
+    <h1 class="font-bankgothic text-turquesa text-2xl" >Publicaciones</h1>
     <div class="space-y-5 mt-6">
       <div
         v-for="post in posts"
@@ -159,13 +161,17 @@ export default {
               alt="Avatar"
               class="w-10 h-10 rounded-full border border-gray-700 "
             />
-            <span class="font-bankgothic text-white">{{
-                post.user_profiles?.display_name || post.user_profiles?.username || 'Usuario'
-              }}</span>
+            <span class="font-bankgothic text-white">
+              {{
+                post.user_profiles?.display_name ||
+                post.user_profiles?.username ||
+                'Usuario'
+              }}
+            </span>
           </RouterLink>
           <span class="text-xs text-gray-500 ml-auto">
-        {{ new Date(post.created_at).toLocaleString() }}
-      </span>
+            {{ new Date(post.created_at).toLocaleString() }}
+          </span>
         </div>
 
         <!-- Contenido principal -->
@@ -184,25 +190,21 @@ export default {
 
         <!-- Tags -->
         <div v-if="post.tags && post.tags.length" class="flex flex-wrap gap-2 mb-3">
-      <span
-        v-for="tag in post.tags"
-        :key="tag"
-        class="bg-turquesa text-black text-xs font-semibold px-2 py-1 rounded-full cursor-pointer hover:bg-[#0db38f] transition-colors duration-200"
-      >
-        #{{ tag }}
-      </span>
+          <span
+            v-for="tag in post.tags"
+            :key="tag"
+            class="bg-turquesa text-black text-xs font-semibold px-2 py-1 rounded-full cursor-pointer hover:bg-[#0db38f] transition-colors duration-200"
+          >
+            #{{ tag }}
+          </span>
         </div>
 
         <!-- Reacciones (solo visual) -->
         <div class="flex items-center gap-6 pt-2 border-t border-gray-700">
-          <button
-            class="flex items-center gap-2 text-gray-400 hover:text-turquesa transition-colors duration-200"
-          >
+          <button class="flex items-center gap-2 text-gray-400 hover:text-turquesa transition-colors duration-200">
             ❤️ <span>23</span>
           </button>
-          <button
-            class="flex items-center gap-2 text-gray-400 hover:text-turquesa transition-colors duration-200"
-          >
+          <button class="flex items-center gap-2 text-gray-400 hover:text-turquesa transition-colors duration-200">
             💬 <span>5</span>
           </button>
         </div>
@@ -216,7 +218,6 @@ export default {
 
   </div>
 </template>
-
 
 <style scoped>
 .fade-scale-enter-active,

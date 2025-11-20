@@ -196,6 +196,7 @@ export async function register({email, password, username, display_name}) {
     // Crear fila inicial del perfil asociado al nuevo user_id
     await createUserProfile({
       id: data.user.id,
+      email: data.user.email,
       username,
       display_name,
       bio: 'Aún no completado',
@@ -325,9 +326,9 @@ export async function updateAuthUser(data) {
 export function subscribeToAuthStateChanges(callback) {
   observers.push(callback);
   notify(callback);
-  return () => {
+  /*return () => {
     observers = observers.filter(obs => callback != obs);
-  }
+  }*/
 }
 
 /**
