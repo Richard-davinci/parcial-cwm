@@ -1,3 +1,46 @@
+<script>
+
+import {logout, subscribeToAuthStateChanges} from "../services/auth";
+
+export default {
+  name: "AppNavbar",
+
+  data() {
+    return {
+      menuOpen: false,
+      user: {
+        id: null,
+        email: null
+      },
+    };
+  },
+  methods: {
+    toggleMenu() {
+      this.menuOpen = !this.menuOpen;
+    },
+
+    closeMenu() {
+      this.menuOpen = false;
+    },
+
+    async onLogoutFromOverlay() {
+      this.closeMenu();
+      await this.handleLogout();
+    },
+
+    async handleLogout() {
+      await logout();
+      this.$router.push("/ingresar");
+    },
+  },
+
+  mounted() {
+    subscribeToAuthStateChanges(newUserState => this.user = newUserState);
+  },
+
+};
+</script>
+
 <template>
   <nav
     class="w-full flex items-center justify-between px-6 py-4 bg-gray-800 text-white shadow-lg border-b border-gray-700 fixed">
@@ -84,9 +127,7 @@
       role="dialog"
     >
       <div class="h-full w-full flex flex-col">
-        <!-- invertimos el orden con flex-row-reverse -->
         <div class="h-16 px-6 flex flex-row-reverse items-center justify-between">
-          <!-- botón ✕ ahora a la derecha -->
           <button
             aria-label="Cerrar menú"
             class="text-2xl leading-none text-turquesa"
@@ -94,7 +135,6 @@
           >
             ✕
           </button>
-          <!-- título ahora a la izquierda -->
           <div class="text-2xl font-quantum">
             Lili-Studio Comunidad
           </div>
@@ -178,72 +218,3 @@
 
 </template>
 
-<script>
-import {watch} from "vue";
-import {useRouter} from "vue-router";
-import {logout, subscribeToAuthStateChanges} from "../services/auth";
-
-export default {
-  name: "AppNavbar",
-
-  data() {
-    return {
-      menuOpen: false,
-      user: {id: null, email: null},
-    };
-  },
-
-  created() {
-    // Suscripción al estado de autenticación
-    this.unsubscribe = subscribeToAuthStateChanges((newUser) => {
-      this.user = newUser;
-    });
-  },
-
-  mounted() {
-    // Bloqueo de scroll cuando el menú se abre
-    this.stopWatch = watch(
-      () => this.menuOpen,
-      (isOpen) => {
-        const root = document.documentElement;
-        if (isOpen) {
-          root.classList.add("overflow-hidden");
-        } else {
-          root.classList.remove("overflow-hidden");
-        }
-      }
-    );
-  },
-
-  beforeUnmount() {
-    // Cancelar suscripción al auth si existe
-    if (typeof this.unsubscribe === "function") this.unsubscribe();
-    if (this.stopWatch) this.stopWatch();
-  },
-
-  methods: {
-    toggleMenu() {
-      this.menuOpen = !this.menuOpen;
-    },
-
-    closeMenu() {
-      this.menuOpen = false;
-    },
-
-    async onLogoutFromOverlay() {
-      this.closeMenu();
-      await this.handleLogout();
-    },
-
-    async handleLogout() {
-      await logout();
-      this.$router.push("/ingresar");
-    },
-  },
-
-  setup() {
-    const router = useRouter();
-    return {router};
-  },
-};
-</script>
