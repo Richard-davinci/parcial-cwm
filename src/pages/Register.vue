@@ -1,8 +1,11 @@
 <script>
-import {register} from "../services/auth.js";
+import { register } from "../services/auth.js";
+import AlertMessage from "../components/AlertMessage.vue";
 
 export default {
   name: "Register",
+  components: { AlertMessage },
+
   data() {
     return {
       user: {
@@ -11,14 +14,28 @@ export default {
         username: "",
         display_name: "",
       },
-      /*loading: false,*/
+      loading: false,
+      errorMessage: "",
     };
   },
+
   methods: {
     async handleSubmit() {
-/*
+      this.errorMessage = "";
+
+      // VALIDACIÓN MÍNIMA
+      if (
+        !this.user.email ||
+        !this.user.password ||
+        !this.user.username ||
+        !this.user.display_name
+      ) {
+        this.errorMessage = "Completá todos los campos.";
+        return;
+      }
+
       this.loading = true;
-*/
+
       try {
         await register({
           email: this.user.email,
@@ -26,11 +43,14 @@ export default {
           username: this.user.username,
           display_name: this.user.display_name,
         });
+
         this.$router.push("/mi-perfil");
+
       } catch (error) {
-        console.error("[Register.vue] Error al registrar:", error.message);
+        this.errorMessage = error.message || "No se pudo crear tu cuenta.";
       }
-    /*  this.loading = false;*/
+
+      this.loading = false;
     },
   },
 };
@@ -39,11 +59,21 @@ export default {
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-950 text-white px-4">
     <div class="w-full max-w-md bg-gray-900 rounded-xl shadow-lg p-8 border border-gray-700">
+
       <h1 class="text-3xl font-bankgothic text-turquesa text-center mb-6">
         Crear cuenta
       </h1>
 
+      <!-- ALERTA -->
+      <AlertMessage
+        v-if="errorMessage"
+        type="danger"
+        :message="errorMessage"
+        class="mb-4"
+      />
+
       <form class="space-y-4" @submit.prevent="handleSubmit">
+
         <div>
           <label class="block text-sm font-medium text-gray-300 mb-1" for="username">
             Nombre de usuario
@@ -51,8 +81,8 @@ export default {
           <input
             id="username"
             v-model="user.username"
-            class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white placeholder-gray-500"
-            required
+            class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700
+                   focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white"
             type="text"
           />
         </div>
@@ -64,8 +94,8 @@ export default {
           <input
             id="display_name"
             v-model="user.display_name"
-            class="w-full px-4 py-2 roundd-lg bg-gray-800 border border-gray-700 focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white placeholder-gray-500"
-            required
+            class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700
+                   focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white"
             type="text"
           />
         </div>
@@ -77,9 +107,9 @@ export default {
           <input
             id="email"
             v-model="user.email"
-            class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white placeholder-gray-500"
+            class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700
+                   focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white"
             placeholder="lili-studio@email.com"
-            required
             type="email"
           />
         </div>
@@ -91,25 +121,32 @@ export default {
           <input
             id="password"
             v-model="user.password"
-            class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white placeholder-gray-500"
+            class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700
+                   focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white"
             placeholder="••••••••"
-            required
             type="password"
           />
         </div>
 
+        <!-- BOTÓN CON LOADER -->
         <button
-          class="w-full bg-turquesa hover:bg-[#0db38f] text-black font-bankgothic tracking-wider uppercase py-2 px-4 rounded-lg transition-colors"
+          :disabled="loading"
+          class="w-full bg-turquesa hover:bg-[#0db38f] disabled:opacity-50
+                 text-black font-bankgothic tracking-wider uppercase py-2 px-4 rounded-lg
+                 transition-colors flex items-center justify-center gap-2"
           type="submit"
         >
-          Crear cuenta
+          <span v-if="!loading">Crear cuenta</span>
+
+          <span v-else class="flex items-center gap-2">
+            <div class="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full"></div>
+            Registrando...
+          </span>
         </button>
       </form>
 
       <div class="my-6 border-t border-gray-700 relative">
-        <span
-          class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gray-900 px-2 text-gray-400 text-sm"
-        >
+        <span class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gray-900 px-2 text-gray-400 text-sm">
           o
         </span>
       </div>
@@ -123,4 +160,3 @@ export default {
     </div>
   </div>
 </template>
-

@@ -27,13 +27,15 @@ export default {
             : this.userData.skills
         };
 
-        await updateAuthUser(updatedData);
+        await updateAuthUser({
+          ...this.userData,
+        });
       } catch (error) {
         console.error('[MyProfileEdit.vue] Error al actualizar el perfil:', error.message);
         this.loading = false;
       }
       this.loading = false;
-      this.$router.push("/mi-perfil");      
+      this.$router.push("/mi-perfil");
     },
   },
   async mounted() {

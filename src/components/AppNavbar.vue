@@ -1,6 +1,5 @@
 <script>
-
-import {logout, subscribeToAuthStateChanges} from "../services/auth";
+import { logout, subscribeToAuthStateChanges } from "../services/auth";
 
 export default {
   name: "AppNavbar",
@@ -10,10 +9,16 @@ export default {
       menuOpen: false,
       user: {
         id: null,
-        email: null
+        email: null,
       },
+
+      // Logout
+      logoutLoading: false,
+      showLogoutConfirm: false,
+      logoutError: "",
     };
   },
+
   methods: {
     toggleMenu() {
       this.menuOpen = !this.menuOpen;
@@ -23,93 +28,139 @@ export default {
       this.menuOpen = false;
     },
 
-    async onLogoutFromOverlay() {
-      this.closeMenu();
-      await this.handleLogout();
+    // ===============================
+    // MOSTRAR CONFIRMACIÓN DE LOGOUT
+    // ===============================
+    confirmLogout() {
+      this.showLogoutConfirm = true;
+      this.logoutError = "";
     },
 
+    // ===============================
+    // CERRAR SESIÓN
+    // ===============================
     async handleLogout() {
-      await logout();
-      this.$router.push("/ingresar");
+      this.logoutLoading = true;
+      this.logoutError = "";
+
+      try {
+        await logout();
+
+        this.showLogoutConfirm = false;
+        this.$router.push("/ingresar");
+      } catch (error) {
+        console.error("[Navbar] Error al cerrar sesión:", error.message);
+        this.logoutError = "No se pudo cerrar la sesión. Intentá nuevamente.";
+      }
+
+      this.logoutLoading = false;
+    },
+
+    async onLogoutFromOverlay() {
+      this.closeMenu();
+      this.confirmLogout();
     },
   },
 
   mounted() {
-    subscribeToAuthStateChanges(newUserState => this.user = newUserState);
+    subscribeToAuthStateChanges((newUserState) => (this.user = newUserState));
   },
-
 };
 </script>
 
 <template>
   <nav
-    class="w-full flex items-center justify-between px-6 py-4 bg-gray-800 text-white shadow-lg border-b border-gray-700 fixed">
+    class="w-full flex items-center justify-between px-6 py-4 bg-gray-800 text-white shadow-lg border-b border-gray-700 fixed"
+  >
     <RouterLink class="text-2xl font-quantum" to="/">
       Lili-Studio Comunidad
     </RouterLink>
+
+    <!-- Desktop Menu -->
     <ul class="hidden md:flex items-center gap-6 font-bankgothic">
       <li>
         <RouterLink
           :class="{ 'text-turquesa': $route.path === '/' }"
-          class="px-3 py-2 rounded-md hover:bg-gray-700 hover:text-turquesa transition-colors duration-200 font-bankgothic"
-          to="/">Inicio
+          class="px-3 py-2 rounded-md hover:bg-gray-700 hover:text-turquesa transition-colors duration-200"
+          to="/"
+        >
+          Inicio
         </RouterLink>
       </li>
+
+      <!-- SI NO ESTÁ LOGUEADO -->
       <template v-if="user.id === null">
         <li>
           <RouterLink
-            :class="['font-bankgothic py-2 px-6 rounded-lg transition-all duration-200',
+            :class="['py-2 px-6 rounded-lg transition-all duration-200',
             $route.path === '/ingresar'
-            ? 'border-2 border-turquesa text-turquesa bg-transparent'
-            : 'bg-turquesa text-black hover:opacity-90']"
+              ? 'border-2 border-turquesa text-turquesa bg-transparent'
+              : 'bg-turquesa text-black hover:opacity-90']"
             to="/ingresar"
           >
             Iniciar sesión
           </RouterLink>
         </li>
+
         <li>
           <RouterLink
-            :class="['font-bankgothic py-2 px-6 rounded-lg transition-all duration-200',
+            :class="['py-2 px-6 rounded-lg transition-all duration-200',
             $route.path === '/crear-cuenta'
-            ? 'border-2 border-turquesa text-turquesa bg-transparent'
-            : 'bg-turquesa text-black hover:opacity-90']"
+              ? 'border-2 border-turquesa text-turquesa bg-transparent'
+              : 'bg-turquesa text-black hover:opacity-90']"
             to="/crear-cuenta"
           >
             Crear cuenta
           </RouterLink>
-
         </li>
       </template>
+
+      <!-- SI ESTÁ LOGUEADO -->
       <template v-else>
         <li>
           <RouterLink
             :class="{ 'text-turquesa': $route.path === '/feed' }"
-            class="px-3 py-2 rounded-md hover:bg-gray-700 hover:text-turquesa transition-colors duration-200 font-bankgothic"
-            to="/feed">Comunidad
+            class="px-3 py-2 rounded-md hover:bg-gray-700 hover:text-turquesa transition-colors duration-200"
+            to="/feed"
+          >
+            Comunidad
           </RouterLink>
         </li>
+
+        <!-- DROPDOWN -->
         <li class="relative group">
           <button
-            class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-700 hover:text-turquesa transition-colors duration-200">
-            <img alt="Avatar" class="w-8 h-8 rounded-full" src="/img/ricardo.webp">
+            class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-700 hover:text-turquesa transition-colors duration-200"
+          >
+            <img alt="Avatar" class="w-8 h-8 rounded-full" src="/img/ricardo.webp" />
             <span class="font-bankgothic">Mi cuenta</span>
           </button>
+
+          <!-- Menú -->
           <div
-            class="dropdown-menu hidden group-hover:block shadow border border-gray-700 bg-gray-800  hover:text-turquesa transition-colors duration-200 absolute right-0 py-1 w-48 rounded-md">
+            class="dropdown-menu hidden group-hover:block shadow border border-gray-700 bg-gray-800 transition-colors duration-200 absolute right-0 py-1 w-48 rounded-md"
+          >
             <RouterLink class="block px-4 py-2 text-sm hover:bg-gray-700 font-bankgothic" to="/mi-perfil">
-              <i class="bi bi-person-circle mr-2 "></i> Perfil
+              <i class="bi bi-person-circle mr-2"></i> Perfil
             </RouterLink>
+
             <div class="border-t border-gray-700 my-1"></div>
-            <form action="#" @submit.prevent="handleLogout">
-              <button class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700 font-bankgothic"
-                      type="submit">
-                <i class="bi bi-box-arrow-right mr-2 "></i>Cerrar sesión
+
+            <!-- Cerrar sesión -->
+            <form action="#" @submit.prevent="confirmLogout">
+              <button
+                class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700 font-bankgothic"
+                type="submit"
+              >
+                <i class="bi bi-box-arrow-right mr-2"></i> Cerrar sesión
               </button>
             </form>
           </div>
         </li>
       </template>
     </ul>
+
+    <!-- Hamburger Menu -->
     <button
       :aria-expanded="menuOpen ? 'true' : 'false'"
       aria-label="Abrir menú"
@@ -119,6 +170,8 @@ export default {
       ☰
     </button>
   </nav>
+
+  <!-- MOBILE OVERLAY -->
   <transition appear name="overlay">
     <div
       v-if="menuOpen"
@@ -128,24 +181,19 @@ export default {
     >
       <div class="h-full w-full flex flex-col">
         <div class="h-16 px-6 flex flex-row-reverse items-center justify-between">
-          <button
-            aria-label="Cerrar menú"
-            class="text-2xl leading-none text-turquesa"
-            @click="closeMenu"
-          >
+          <button aria-label="Cerrar menú" class="text-2xl leading-none text-turquesa" @click="closeMenu">
             ✕
           </button>
+
           <div class="text-2xl font-quantum">
             Lili-Studio Comunidad
           </div>
+
           <div class="w-8"></div>
         </div>
 
         <transition appear name="slide-left">
-          <ul
-            key="mobile-menu"
-            class="mt-6 px-6 flex flex-col gap-4 text-lg font-bankgothic items-end text-right"
-          >
+          <ul key="mobile-menu" class="mt-6 px-6 flex flex-col gap-4 text-lg font-bankgothic items-end text-right">
             <li>
               <RouterLink
                 :class="{ 'text-turquesa': $route.path === '/' }"
@@ -168,6 +216,7 @@ export default {
                   Comunidad
                 </RouterLink>
               </li>
+
               <li>
                 <RouterLink
                   :class="{ 'text-turquesa': $route.path === '/mi-perfil' }"
@@ -178,11 +227,9 @@ export default {
                   Mi Perfil
                 </RouterLink>
               </li>
+
               <li>
-                <button
-                  class="block py-2 text-right text-red-800"
-                  @click="onLogoutFromOverlay"
-                >
+                <button class="block py-2 text-right text-red-800" @click="onLogoutFromOverlay">
                   Cerrar sesión
                 </button>
               </li>
@@ -199,6 +246,7 @@ export default {
                   Ingresar
                 </RouterLink>
               </li>
+
               <li>
                 <RouterLink
                   :class="{ 'text-turquesa': $route.path === '/crear-cuenta' }"
@@ -216,5 +264,50 @@ export default {
     </div>
   </transition>
 
-</template>
+  <!-- ===================================== -->
+  <!-- MODAL DE CONFIRMACIÓN DE LOGOUT -->
+  <!-- ===================================== -->
+  <transition name="fade">
+    <div
+      v-if="showLogoutConfirm"
+      class="fixed inset-0 bg-black/60 flex items-center justify-center z-[80]"
+    >
+      <div class="bg-gray-900 border border-gray-700 rounded-xl p-8 w-full max-w-sm shadow-xl">
+        <h3 class="text-xl font-bankgothic text-turquesa mb-4 text-center">
+          ¿Cerrar sesión?
+        </h3>
 
+        <p class="text-gray-300 text-center mb-6">
+          Vas a salir de tu cuenta. ¿Querés continuar?
+        </p>
+
+        <div v-if="logoutError" class="text-red-400 text-sm mb-4 text-center">
+          {{ logoutError }}
+        </div>
+
+        <div class="flex gap-4">
+          <button
+            class="flex-1 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition"
+            @click="showLogoutConfirm = false"
+            :disabled="logoutLoading"
+          >
+            Cancelar
+          </button>
+
+          <button
+            class="flex-1 py-2 bg-turquesa text-black rounded-lg hover:bg-[#0db38f] transition flex items-center justify-center gap-2"
+            @click="handleLogout"
+            :disabled="logoutLoading"
+          >
+            <span v-if="!logoutLoading">Cerrar sesión</span>
+
+            <span v-else class="flex items-center gap-2">
+              <div class="animate-spin h-4 w-4 border-2 border-black border-t-transparent rounded-full"></div>
+              Saliendo...
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </transition>
+</template>

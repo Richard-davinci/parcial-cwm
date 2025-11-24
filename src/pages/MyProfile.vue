@@ -1,23 +1,37 @@
 <script>
-import {createInitialUserState, subscribeToAuthStateChanges} from "../services/auth.js";
-import {fetchUserPosts} from "../services/posts.js";
+import {
+  createInitialUserState,
+  subscribeToAuthStateChanges
+} from "../services/auth.js";
+import { fetchUserPosts } from "../services/posts.js";
 
-
-let unsubscribeFromAuth = () => {
-};
+let unsubscribeFromAuth = () => {};
 
 export default {
   name: "MyProfile",
+
   data() {
     return {
       user: createInitialUserState(),
-      posts: []
+      posts: [],
+      loading: true,
+      errorMessage: ""
     };
   },
 
   mounted() {
-    unsubscribeFromAuth = subscribeToAuthStateChanges(newUserState => this.user = newUserState);
-    this.loadUserPosts();
+    unsubscribeFromAuth = subscribeToAuthStateChanges(async newUserState => {
+      this.user = newUserState;
+
+      if (!this.user || !this.user.id) {
+        this.errorMessage = "No se pudo cargar tu perfil.";
+        this.loading = false;
+        return;
+      }
+
+      await this.loadUserPosts();
+      this.loading = false;
+    });
   },
 
   unmounted() {
@@ -26,13 +40,20 @@ export default {
 
   methods: {
     async loadUserPosts() {
-      if (this.user.id) {
-        try {
-          this.posts = await fetchUserPosts(this.user.id);
-        } catch (error) {
-          console.error('Error al cargar los posts del usuario:', error);
+      try {
+        const { data, error } = await fetchUserPosts(this.user.id);
+
+        if (error) {
+          this.errorMessage = "No se pudieron cargar tus publicaciones.";
           this.posts = [];
+          return;
         }
+
+        this.posts = data;
+      } catch (error) {
+        console.error("Error al cargar los posts:", error);
+        this.errorMessage = "Error al cargar tus publicaciones.";
+        this.posts = [];
       }
     },
 
@@ -42,26 +63,51 @@ export default {
   },
 };
 </script>
+
 <template>
   <div class="min-h-screen bg-gray-950 text-white px-6 py-12">
-    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-      <!-- Columna de informacion y redes del perfil -->
+
+    <!-- Loader -->
+    <div v-if="loading" class="flex justify-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-turquesa border-t-transparent"></div>
+    </div>
+
+    <!-- Error de carga -->
+    <div v-else-if="errorMessage" class="text-center py-20">
+      <h1 class="text-3xl font-bankgothic text-red-500 mb-4">Error</h1>
+      <p class="text-gray-400">{{ errorMessage }}</p>
+    </div>
+
+    <!-- Contenido principal -->
+    <div v-else class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+
+      <!-- H1 principal que el profe exige -->
+      <h1 class="md:col-span-12 text-4xl font-bankgothic text-turquesa mb-8">
+        Mi Perfil
+      </h1>
+
+      <!-- Columna del perfil -->
       <div class="space-y-6 md:col-span-6 lg:col-span-4">
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-8 shadow-lg">
           <div class="flex flex-col items-center text-center">
+
             <img
               v-if="user.avatar_url"
               :src="`/img/${user.avatar_url || 'avatar.webp'}`"
               alt="Avatar"
               class="w-32 h-32 rounded-full mb-4 border-4 border-turquesa object-cover"
             />
+
             <div v-else class="w-32 h-32 rounded-full mb-4 bg-gray-700 flex items-center justify-center text-3xl">
               {{ user.display_name?.charAt(0).toUpperCase() }}
             </div>
 
-            <h1 class="text-3xl font-bankgothic text-turquesa mb-2">{{ user.display_name || 'Sin nombre' }}</h1>
-            <p class="text-gray-400 text-sm mb-1">@{{ user.username || 'sin_username' }}</p>
-            <p class="text-gray-400 text-sm mb-4">{{ user.email || 'Email no disponible' }}</p>
+            <h2 class="text-3xl font-bankgothic text-turquesa mb-2">
+              {{ user.display_name }}
+            </h2>
+
+            <p class="text-gray-400 text-sm mb-1">@{{ user.username  }}</p>
+            <p class="text-gray-400 text-sm mb-4">{{ user.email }}</p>
 
             <p class="text-lg text-gray-300 mb-2">{{ user.career || 'Carrera no especificada' }}</p>
             <p class="text-sm text-gray-400 mb-4">{{ user.location || 'Ubicación no especificada' }}</p>
@@ -70,8 +116,8 @@ export default {
               v-if="user.available_for_work"
               class="bg-green-700 text-white text-xs px-3 py-1 rounded-full mb-4"
             >
-            Disponible para trabajar
-          </span>
+              Disponible para trabajar
+            </span>
 
             <RouterLink
               class="bg-turquesa text-black font-bankgothic px-6 py-2 rounded-lg hover:bg-[#0db38f] transition-colors"
@@ -81,6 +127,8 @@ export default {
             </RouterLink>
           </div>
         </div>
+
+        <!-- Información secundaria -->
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-8 shadow-lg space-y-6">
           <div>
             <h2 class="text-2xl font-bankgothic text-turquesa mb-2">Sobre mí</h2>
@@ -93,8 +141,10 @@ export default {
           </div>
 
           <div>
-            <h2 class="text-2xl font-bankgothic text-turquesa mb-2">Años de experiencia: <span class="text-white">{{ user.experience_years || 'No especificado' }}</span> </h2>
-
+            <h2 class="text-2xl font-bankgothic text-turquesa mb-2">
+              Años de experiencia:
+              <span class="text-white">{{ user.experience_years || 'No especificado' }}</span>
+            </h2>
           </div>
 
           <div v-if="user.website_url">
@@ -104,14 +154,10 @@ export default {
             </a>
           </div>
 
-          <div v-if="user.skills && user.skills.length > 0">
+          <div v-if="user.skills?.length">
             <h2 class="text-2xl font-bankgothic text-turquesa mb-2">Skills</h2>
             <div class="flex flex-wrap gap-2">
-              <span
-                v-for="skill in user.skills"
-                :key="skill"
-                class="bg-gray-800 text-turquesa text-sm px-3 py-1 rounded-full"
-              >
+              <span v-for="skill in user.skills" :key="skill" class="bg-gray-800 text-turquesa text-sm px-3 py-1 rounded-full">
                 {{ skill }}
               </span>
             </div>
@@ -122,10 +168,14 @@ export default {
             <p>Última actualización: {{ formatDate(user.updated_at) }}</p>
           </div>
         </div>
+
+        <!-- Redes -->
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-8 shadow-lg">
-          <h3 class="text-xl font-bankgothic text-turquesa mb-4">🌐 Redes y enlaces</h3>
+          <h3 class="text-xl font-bankgothic text-turquesa mb-4">Redes y enlaces</h3>
+
           <div class="space-y-4">
-            <div v-if="user.github_url">
+
+            <template v-if="user.github_url">
               <label class="block text-gray-400 text-sm mb-2">GitHub</label>
               <a
                 :href="user.github_url"
@@ -134,9 +184,9 @@ export default {
               >
                 {{ user.github_url }}
               </a>
-            </div>
+            </template>
 
-            <div v-if="user.linkedin_url">
+            <template v-if="user.linkedin_url">
               <label class="block text-gray-400 text-sm mb-2">LinkedIn</label>
               <a
                 :href="user.linkedin_url"
@@ -145,9 +195,9 @@ export default {
               >
                 {{ user.linkedin_url }}
               </a>
-            </div>
+            </template>
 
-            <div v-if="user.instagram_url">
+            <template v-if="user.instagram_url">
               <label class="block text-gray-400 text-sm mb-2">Instagram</label>
               <a
                 :href="user.instagram_url"
@@ -156,14 +206,18 @@ export default {
               >
                 {{ user.instagram_url }}
               </a>
-            </div>
+            </template>
+
           </div>
+
         </div>
       </div>
-      <!-- Columna de publicaciones del usuario -->
+
+      <!-- Publicaciones -->
       <div class="space-y-6 md:col-span-6 lg:col-span-8">
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-8 shadow-lg">
           <h2 class="text-3xl font-bankgothic text-turquesa mb-8">Mis publicaciones</h2>
+
           <div v-if="posts.length > 0" class="space-y-6">
             <div
               v-for="post in posts"
@@ -173,14 +227,17 @@ export default {
               <p class="text-sm text-gray-400 mb-2">
                 Publicado el {{ new Date(post.created_at).toLocaleString() }}
               </p>
+
               <p class="text-lg text-gray-200 mb-4">{{ post.content }}</p>
+
               <img
                 v-if="post.image_url"
                 :src="post.image_url"
                 alt="Imagen del post"
                 class="w-full rounded-lg mb-4 object-cover"
               />
-              <div v-if="post.tags && post.tags.length" class="flex flex-wrap gap-2">
+
+              <div v-if="post.tags?.length" class="flex flex-wrap gap-2">
                 <span
                   v-for="tag in post.tags"
                   :key="tag"
@@ -189,6 +246,7 @@ export default {
                   {{ tag }}
                 </span>
               </div>
+
             </div>
           </div>
 
@@ -197,6 +255,7 @@ export default {
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </template>

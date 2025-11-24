@@ -50,17 +50,17 @@
  * ===========================================================
  */
 
-import { supabase } from "./supabase";
+import {supabase} from "./supabase";
 
 export async function getUserProfileById(id) {
-  const { data, error } = await supabase
+  const {data, error} = await supabase
     .from('user_profiles')
     .select()
     .eq('id', id)
     .limit(1)
     .single();
 
-  if(error) {
+  if (error) {
     console.error('[user-profiles.js createUserProfile] Error al crear el perfil del usuario', id, error);
     throw new Error(error.message);
   }
@@ -69,24 +69,31 @@ export async function getUserProfileById(id) {
 }
 
 export async function createUserProfile(data) {
-  const { error } = await supabase
-    .from('user_profiles')
+  const {error} = await supabase
+    .from("user_profiles")
     .insert(data);
 
-  if(error) {
-    console.error('[user-profils.js createUserProfile] Error al crear el perfil del usuario', id, error);
-    throw new Error(error.message);
+  if (error) {
+    console.error(
+      "[user-profiles.js → createUserProfile] Error al crear el perfil:",
+      data,
+      error
+    );
+    throw new Error(error.message || "No se pudo crear el perfil del usuario.");
   }
+
+  return true;
 }
 
+
 export async function updateUserProfile(id, data) {
-  const { error } = await supabase
+  const {error} = await supabase
     .from('user_profiles')
     .update(data)
     .eq('id', id);
 
-  if(error) {
-    console.error('[user-profils.js updateUserProfile] Error al actualizar el perfil del usuario', id, error);
+  if (error) {
+    console.error('[user-profils.js updateUserProfile] Error al actualizar el perfil del usuario', data, error);
     throw new Error(error.message);
   }
 }

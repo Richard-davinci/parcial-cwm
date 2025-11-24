@@ -17,7 +17,7 @@ initPromise = loadCurrentUserAuthState();
 async function loadCurrentUserAuthState() {
   try {
     const {data, error} = await supabase.auth.getUser();
-    
+
     if (error || !data.user) {
       console.warn('No hay usuario autenticado.');
       setUser({
@@ -59,37 +59,49 @@ async function fetchFullProfile() {
 }
 
 export async function register({email, password, username, display_name}) {
-  try {
-    const {data, error} = await supabase.auth.signUp({
-      email,
-      password,
-    });
 
-    if (error) {
-      console.error('[auth.js register] Error al registrar el usuario.', error);
-      throw new Error(error.message);
-    }
+  // Validar username duplicado
+  const {data: existingUser, error: usernameCheckError} = await supabase
+    .from("user_profiles")
+    .select("id")
+    .eq("username", username)
+    .maybeSingle();
 
-    // Crear fila inicial del perfil asociado al nuevo user_id
-    await createUserProfile({
-      id: data.user.id,
-      email: data.user.email,
-      username,
-      display_name,
-    });
-
-    // Actualizar estado global con datos mínimos
-    setUser({
-      id: data.user.id,
-      email: data.user.email,
-      username,
-      display_name,
-    });
-  } catch (error) {
-    console.error('[auth.js register] Error inesperado:', error.message);
-    throw error;
+  if (existingUser) {
+    throw new Error("El nombre de usuario ya está en uso.");
   }
+
+  if (usernameCheckError) {
+    throw new Error("No se pudo validar el nombre de usuario.");
+  }
+
+  // Registro en Auth
+  const {data, error} = await supabase.auth.signUp({
+    email,
+    password,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  // Crear perfil usando tu función ya existente
+  await createUserProfile({
+    id: data.user.id,
+    email: data.user.email,
+    username,
+    display_name,
+
+  });
+  setUser({
+    id: data.user.id,
+    email: data.user.email,
+    username,
+    display_name,
+  });
+  return {success: true};
 }
+
 
 export async function login(email, password) {
   const {data, error} = await supabase.auth.signInWithPassword({
@@ -117,16 +129,39 @@ export async function logout() {
   });
 }
 
+
 export async function updateAuthUser(data) {
   try {
-    await updateUserProfile(user.id, data);
-    setUser(data);
-    console.log('[auth.js updateAuthUser] Perfil actualizado correctamente.');
+    const profileUpdate = {
+      bio: data.bio,
+      career: data.career,
+      location: data.location,
+      website_url: data.website_url,
+      skills: data.skills,
+      experience_years: data.experience_years,
+      current_project: data.current_project,
+      available_for_work: data.available_for_work,
+      github_url: data.github_url,
+      linkedin_url: data.linkedin_url,
+      instagram_url: data.instagram_url,
+      avatar_url: data.avatar_url,
+      updated_at: new Date(),
+    };
+
+    await updateUserProfile(user.id, profileUpdate);
+
+    setUser({
+      ...user,
+      ...profileUpdate,
+    });
+
+    console.log('[auth.js] Perfil actualizado correctamente.');
   } catch (error) {
-    console.error('[auth.js updateAuthUser] Error al actualizar el perfil:', error.message);
-    throw error; 
+    console.error('[auth.js updateAuthUser] Error:', error.message);
+    throw error;
   }
 }
+
 
 export function subscribeToAuthStateChanges(callback) {
   observers.push(callback);

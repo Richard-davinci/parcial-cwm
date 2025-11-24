@@ -1,97 +1,66 @@
 <script>
-/**
- * ===========================================================
- * Login.vue — Componente de inicio de sesión
- * ===========================================================
- * Descripción:
- *   Este componente gestiona el proceso de autenticación de usuarios
- *   mediante email y contraseña. Valida los campos, llama al servicio
- *   `auth.js` para autenticar, y redirige al perfil si el login es exitoso.
- *
- * Relación con otros servicios:
- *   - services/auth.js → usa la función `login(email, password)` para autenticar.
- *   - router.js        → redirige a `/mi-perfil` tras el inicio de sesión.
- *
- * Índice de funciones:
- *   1) data()                  → Estado local del formulario
- *   2) handleSubmit()         → Maneja el envío del formulario y la autenticación
- *
- * Errores comunes:
- *   - Credenciales incorrectas: Supabase lanza error si el email/contraseña no coinciden.
- *   - Campos vacíos: deben validarse antes de llamar a `login()`.
- *   - Sesión activa previa: si ya hay sesión, podría redirigir directamente sin pasar por login.
- * ===========================================================
- */
-
-import {login} from '../services/auth.js';
+import { login } from "../services/auth.js";
 import AlertMessage from "../components/AlertMessage.vue";
 
-
 export default {
-  name: 'Login',
+  name: "Login",
   components: { AlertMessage },
+
   data() {
     return {
       user: {
-        email: '',
-        password: '',
-        errorMessage: "",
+        email: "",
+        password: "",
       },
-      // loading: false,  // controla estado del botón de envío
+      loading: false,         //  loader real
+      errorMessage: "",       //  error
     };
   },
 
   methods: {
-    /**
-     * -----------------------------------------------------------
-     * handleSubmit()
-     * -----------------------------------------------------------
-     * Objetivo:
-     *   - Validar y enviar las credenciales al servicio `auth.js`.
-     *   - Manejar errores de autenticación.
-     *   - Redirigir al perfil del usuario al iniciar sesión con éxito.
-     *
-     * Flujo:
-     *   a) Cambia `loading` a true para indicar que se está procesando.
-     *   b) Llama a `login(email, password)` desde `auth.js`.
-     *   c) Si el login es exitoso, redirige al perfil (`/mi-perfil`).
-     *   d) Captura y muestra errores si la autenticación falla.
-     *   e) Restaura `loading` a false al finalizar.
-     *
-     * Validaciones recomendadas (a implementar en UI):
-     *   - Verificar que email y password no estén vacíos antes del submit.
-     *   - Manejar mensajes de error personalizados según el código devuelto por Supabase.
-     */
     async handleSubmit() {
+      this.errorMessage = "";
+      this.loading = true;   // 
+
       try {
-        // this.loading = true; // activa el estado de carga
+        if (!this.user.email || !this.user.password) {
+          this.errorMessage = "Completá todos los campos.";
+          this.loading = false;
+          return;
+        }
+
         await login(this.user.email, this.user.password);
-        this.$router.push('/mi-perfil');
+        this.$router.push("/mi-perfil");
+
       } catch (error) {
-        // !!!!!!!!!!!!Maneja y registra errores (ej. credenciales incorrectas)!!!!!!!!!!!
-        this.errorMessage = error.message || "Error al iniciar sesión.";      }
-      //this.loading = false; // finaliza el estado de carga, incluso si hubo error
+        this.errorMessage = error.message || "Error al iniciar sesión.";
+      }
+
+      this.loading = false;  // 
     },
   },
 };
 </script>
 
-
 <template>
   <div class="py-10 flex items-center justify-center text-white">
     <div class="w-full max-w-md bg-gray-900 rounded-xl shadow-lg p-8 border border-gray-700">
+
       <h1 class="text-3xl font-bankgothic text-turquesa text-center mb-6">
         Iniciar Sesión
       </h1>
 
-      <form action="#" class="space-y-4" @submit.prevent="handleSubmit">
-        <div>
-          <AlertMessage
-            v-if="errorMessage"
-            type="danger"
-            :message="errorMessage"
-          />
+      <!--  Mostrar errores -->
+      <AlertMessage
+        v-if="errorMessage"
+        type="danger"
+        :message="errorMessage"
+        class="mb-4"
+      />
 
+      <form class="space-y-4" @submit.prevent="handleSubmit">
+
+        <div>
           <label class="block text-sm font-medium text-gray-300 mb-1" for="email">Email</label>
           <input
             id="email"
@@ -113,11 +82,19 @@ export default {
           />
         </div>
 
+        <!--  Botón con loader -->
         <button
-          class="w-full bg-[#0ec49f] hover:bg-[#0db38f] text-black font-bankgothic tracking-wider uppercase py-2 px-4 rounded-lg transition-colors"
+          :disabled="loading"
+          class="w-full bg-[#0ec49f] hover:bg-[#0db38f] disabled:opacity-50 text-black font-bankgothic tracking-wider uppercase py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
           type="submit"
         >
-          Ingresar
+          <span v-if="!loading">Ingresar</span>
+
+          <!-- spinner -->
+          <span v-else class="flex items-center gap-2">
+            <div class="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full"></div>
+            Cargando...
+          </span>
         </button>
       </form>
 
@@ -126,7 +103,6 @@ export default {
           o
         </span>
       </div>
-
 
       <p class="mt-6 text-center text-gray-400 text-sm">
         ¿No tenés cuenta?
