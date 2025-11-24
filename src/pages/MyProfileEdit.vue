@@ -1,6 +1,5 @@
 <script>
 import { updateUserProfile, getUserProfileById } from "../services/user-profiles.js";
-import { supabase } from "../services/supabase.js";
 
 export default {
   name: "MyProfileEdit",
@@ -50,6 +49,7 @@ export default {
   },
 };
 </script>
+
 
 <template>
   <div class="min-h-screen bg-gray-950 text-white flex items-center justify-center px-4 py-12">

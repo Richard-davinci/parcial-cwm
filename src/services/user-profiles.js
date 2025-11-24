@@ -52,23 +52,6 @@
 
 import { supabase } from "./supabase";
 
-/**
- * -----------------------------------------------------------
- * 1) getUserProfileById(id)
- * -----------------------------------------------------------
- * Objetivo:
- *  - Obtener el perfil de usuario por su `id` (uuid),
- *    que generalmente coincide con auth.user.id.
- *
- * Flujo:
- *  a) Consulta a la tabla `user_profiles` filtrando por id.
- *  b) Usa .limit(1).single() para traer exactamente una fila.
- *  c) Si hay error (no existe o permisos), se lanza excepción.
- *
- * Notas:
- *  - En proyectos con RLS, asegurar que la política permita
- *    leer el perfil requerido (p. ej. público o propio).
- */
 export async function getUserProfileById(id) {
   const { data, error } = await supabase
     .from('user_profiles')
@@ -78,78 +61,32 @@ export async function getUserProfileById(id) {
     .single();
 
   if(error) {
-    // Nota: el mensaje de consola menciona "createUserProfile" pero la operación es de lectura.
-    // Se mantiene el texto original para respetar tu código, solo se deja constancia aquí.
-    console.error('[user-profiles.js createUserProfile] Error al crear el perfil del usuario', data, error);
+    console.error('[user-profiles.js createUserProfile] Error al crear el perfil del usuario', id, error);
     throw new Error(error.message);
   }
 
   return data;
 }
 
-/**
- * -----------------------------------------------------------
- * 2) createUserProfile(data)
- * -----------------------------------------------------------
- * Objetivo:
- *  - Insertar una fila en `user_profiles` con los datos iniciales
- *    del perfil (generalmente tras un signUp exitoso).
- *
- * Flujo:
- *  a) Insertar `data` en la tabla.
- *  b) .select().single() para retornar la fila creada.
- *  c) Si hay error (conflicto, RLS, validación), lanza excepción.
- *
- * Notas:
- *  - `data.id` debe ser el uuid del usuario de Auth (para enlazar cuentas).
- *  - Asegurar tipos coherentes con el esquema (ej. arrays vs json).
- */
 export async function createUserProfile(data) {
-  const { data: created, error } = await supabase
+  const { error } = await supabase
     .from('user_profiles')
-    .insert(data)
-    .select()
-    .single();
+    .insert(data);
 
-  if (error) {
-    console.error('[user-profiles.js createUserProfile] Error al crear el perfil del usuario', data, error);
+  if(error) {
+    console.error('[user-profils.js createUserProfile] Error al crear el perfil del usuario', id, error);
     throw new Error(error.message);
   }
-
-  return created;
 }
 
-/**
- * -----------------------------------------------------------
- * 3) updateUserProfile(id, data)
- * -----------------------------------------------------------
- * Objetivo:
- *  - Actualizar la fila del perfil identificada por `id` con los
- *    campos provistos en `data`.
- *
- * Flujo:
- *  a) Ejecutar update(data).eq('id', id).
- *  b) .select().single() para devolver la fila actualizada.
- *  c) Ante error (RLS, tipos, inexistente) lanzar excepción.
- *
- * Notas:
- *  - Si usás RLS, asegurá que la política permita que el usuario
- *    autenticado con auth.uid() = id pueda actualizar su fila.
- *  - Manejá con cuidado campos opcionales vacíos para no sobrescribir
- *    con valores nulos no deseados.
- */
 export async function updateUserProfile(id, data) {
-  const { data: updated, error } = await supabase
+  const { error } = await supabase
     .from('user_profiles')
     .update(data)
-    .eq('id', id)
-    .select()
-    .single();
+    .eq('id', id);
 
-  if (error) {
-    console.error('[user-profiles.js updateUserProfile] Error al actualizar el perfil del usuario', id, error);
+  if(error) {
+    console.error('[user-profils.js updateUserProfile] Error al actualizar el perfil del usuario', id, error);
     throw new Error(error.message);
   }
-
-  return updated;
 }

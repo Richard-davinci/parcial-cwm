@@ -1,3 +1,9 @@
+<script>
+export default {
+  name: 'Home'
+}
+</script>
+
 <template>
   <div class="flex flex-col items-center justify-center bg-gray-950 text-white px-6 py-20">
     <div class="text-center max-w-3xl">
@@ -12,8 +18,7 @@
       <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
         <router-link
           class="bg-turquesa hover:bg-[#0db38f] text-black font-bankgothic py-3 px-8 rounded-lg transition-colors text-lg"
-          to="/feed"
-        >
+          to="/feed">
           Ver muro
         </router-link>
       </div>
@@ -46,9 +51,3 @@
     </div>
   </div>
 </template>
-
-<script>
-export default {
-  name: 'Home'
-}
-</script>

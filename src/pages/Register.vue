@@ -11,12 +11,14 @@ export default {
         username: "",
         display_name: "",
       },
-      loading: false,
+      /*loading: false,*/
     };
   },
   methods: {
     async handleSubmit() {
+/*
       this.loading = true;
+*/
       try {
         await register({
           email: this.user.email,
@@ -28,7 +30,7 @@ export default {
       } catch (error) {
         console.error("[Register.vue] Error al registrar:", error.message);
       }
-      this.loading = false;
+    /*  this.loading = false;*/
     },
   },
 };

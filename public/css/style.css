@@ -1,29 +1,30 @@
-@import 'tailwindcss';
+@import '../../node_modules/tailwindcss/dist/lib.d.mts';
 
 :root {
-    --azul: #0c202d;
+    --azul: #112b3a;
+    --azul-light: #074360;
     --turquesa: #0ec49f;
-    --verde: #00d084;
+    --verde: #2b0a45; /* violeta verdoso oscuro (fondo/hover mix) */
     --negro: #0d0d0d;
-    --blanco: #cfd6dc;
+    --blanco: #dcdcdc;
     --gris: #43494e;
 }
 /*estilos*/
 @font-face {
     font-family: 'Quantum';
-    src: url('/fonts/Quantum.otf') format('opentype');
+    src: url('../fonts/Quantum.otf') format('opentype');
     font-weight: bold;
 }
 
 @font-face {
     font-family: 'BankGothic';
-    src: url('/fonts/BankGothic-Medium.ttf') format('truetype');
+    src: url('../fonts/BankGothic-Medium.ttf') format('truetype');
     font-weight: 600;
 }
 
 @font-face {
     font-family: 'Roboto';
-    src: url('/fonts/Roboto-Regular.ttf') format('truetype');
+    src: url('../fonts/Roboto-Regular.ttf') format('truetype');
     font-weight: 400;
 }
 

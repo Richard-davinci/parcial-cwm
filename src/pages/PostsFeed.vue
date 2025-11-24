@@ -66,7 +66,7 @@ export default {
   <div class="max-w-5xl mx-auto p-8">
     <!-- Botón flotante -->
     <button
-      class="fixed bottom-6 right-6 bg-turquesa text-turquesa font-bankgothic px-6 py-3 rounded-full shadow-lg hover:bg-[#0db38f] transition-all duration-300"
+      class="fixed bottom-6 right-6 bg-turquesa font-bankgothic px-6 py-3 rounded-full shadow-lg hover:bg-[#0db38f] transition-all duration-300"
       @click="showModal = true"
     >
       Nueva publicación

@@ -1,6 +1,64 @@
+<script>
+import {getUserProfileById} from "../services/user-profiles.js";
+import {subscribeToAuthStateChanges} from "../services/auth.js";
+import userProfile from "./UserProfile.vue";
+
+// Pantalla de perfil para el usuario autenticado: muestra sus datos y publicaciones.
+let unsubscribeFromAuth = () => {
+};
+
+export default {
+  name: "MyProfile",
+  computed: {
+    userProfile() {
+      return userProfile
+    }
+  },
+  data() {
+    return {
+      // Datos del usuario logueado y posts asociados.
+      user: {},
+      posts: []
+    };
+  },
+  async mounted() {
+    // Suscribe al estado de autenticacion para cargar perfil y posts del usuario activo. unsubscribeFromAuth =
+     subscribeToAuthStateChanges(async newUserState => {
+      this.user = newUserState;
+      if (this.user?.id) {
+        // Carga perfil completo desde la tabla user_profiles.
+        this.user = await getUserProfileById(this.user.id);
+        // Luego trae las publicaciones del mismo usuario.
+        await this.loadUserPosts();
+      }
+    });
+  },
+  methods: {
+    async loadUserPosts() {
+      // Obtiene publicaciones del usuario ordenadas por fecha descendente.
+      const {data, error} = await supabase
+        .from("post")
+        .select("*")
+        .eq("user_id", this.user.id)
+        .order("created_at", {ascending: false});
+
+      if (!error) this.posts = data;
+    },
+    formatDate(date) {
+      // Devuelve fecha legible o marcador si no hay fecha.
+      return date ? new Date(date).toLocaleDateString() : "No disponible";
+    }
+  },
+  unmounted() {
+    // Libera la suscripcion a cambios de autenticacion.
+    unsubscribeFromAuth();
+  }
+};
+</script>
 <template>
   <div class="min-h-screen bg-gray-950 text-white px-6 py-12">
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+      <!-- Columna de informacion y redes del perfil -->
       <div class="space-y-6 md:col-span-6 lg:col-span-4">
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-8 shadow-lg">
           <div class="flex flex-col items-center text-center">
@@ -115,6 +173,7 @@
           </div>
         </div>
       </div>
+      <!-- Columna de publicaciones del usuario -->
       <div class="space-y-6 md:col-span-6 lg:col-span-8">
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-8 shadow-lg">
           <h2 class="text-3xl font-bankgothic text-turquesa mb-8">Mis publicaciones</h2>
@@ -154,54 +213,3 @@
     </div>
   </div>
 </template>
-
-<script>
-import {getUserProfileById} from "../services/user-profiles.js";
-import {subscribeToAuthStateChanges} from "../services/auth.js";
-import {supabase} from "../services/supabase.js";
-import userProfile from "./UserProfile.vue";
-
-let unsubscribeFromAuth = () => {
-};
-
-export default {
-  name: "MyProfile",
-  computed: {
-    userProfile() {
-      return userProfile
-    }
-  },
-  data() {
-    return {
-      user: {},
-      posts: []
-    };
-  },
-  async mounted() {
-    unsubscribeFromAuth = subscribeToAuthStateChanges(async newUserState => {
-      this.user = newUserState;
-      if (this.user?.id) {
-        this.user = await getUserProfileById(this.user.id);
-        await this.loadUserPosts();
-      }
-    });
-  },
-  methods: {
-    async loadUserPosts() {
-      const {data, error} = await supabase
-        .from("post")
-        .select("*")
-        .eq("user_id", this.user.id)
-        .order("created_at", {ascending: false});
-
-      if (!error) this.posts = data;
-    },
-    formatDate(date) {
-      return date ? new Date(date).toLocaleDateString() : "No disponible";
-    }
-  },
-  unmounted() {
-    unsubscribeFromAuth();
-  }
-};
-</script>

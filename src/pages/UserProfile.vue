@@ -158,7 +158,6 @@
 <script>
 import { getUserProfileById } from "../services/user-profiles.js";
 import { subscribeToAuthStateChanges } from "../services/auth.js";
-import { supabase } from "../services/supabase.js";
 
 let unsubscribeFromAuth = () => {};
 

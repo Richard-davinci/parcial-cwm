@@ -23,26 +23,21 @@
  * ===========================================================
  */
 
-import { login } from '../services/auth.js';
+import {login} from '../services/auth.js';
+import AlertMessage from "../components/AlertMessage.vue";
+
 
 export default {
   name: 'Login',
-
-  /**
-   * -----------------------------------------------------------
-   * data()
-   * -----------------------------------------------------------
-   * Estado reactivo del componente:
-   *   - user.email / user.password → valores de los campos del formulario.
-   *   - loading                    → indica si la petición de login está en proceso.
-   */
+  components: { AlertMessage },
   data() {
     return {
       user: {
-        email: '',     // correo ingresado por el usuario
-        password: '',  // contraseña ingresada
+        email: '',
+        password: '',
+        errorMessage: "",
       },
-      loading: false,  // controla estado del botón de envío (ej. spinner/deshabilitado)
+      // loading: false,  // controla estado del botón de envío
     };
   },
 
@@ -69,14 +64,13 @@ export default {
      */
     async handleSubmit() {
       try {
-        this.loading = true; // activa el estado de carga
-        await login(this.user.email, this.user.password); // llama al servicio de autenticación
-        this.$router.push('/mi-perfil'); // redirige al perfil si fue exitoso
+        // this.loading = true; // activa el estado de carga
+        await login(this.user.email, this.user.password);
+        this.$router.push('/mi-perfil');
       } catch (error) {
-        // Maneja y registra errores (ej. credenciales incorrectas)
-        console.error('Error al iniciar sesión:', error);
-      }
-      this.loading = false; // finaliza el estado de carga, incluso si hubo error
+        // !!!!!!!!!!!!Maneja y registra errores (ej. credenciales incorrectas)!!!!!!!!!!!
+        this.errorMessage = error.message || "Error al iniciar sesión.";      }
+      //this.loading = false; // finaliza el estado de carga, incluso si hubo error
     },
   },
 };
@@ -92,13 +86,18 @@ export default {
 
       <form action="#" class="space-y-4" @submit.prevent="handleSubmit">
         <div>
+          <AlertMessage
+            v-if="errorMessage"
+            type="danger"
+            :message="errorMessage"
+          />
+
           <label class="block text-sm font-medium text-gray-300 mb-1" for="email">Email</label>
           <input
             id="email"
             v-model="user.email"
             class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white placeholder-gray-500"
             placeholder="tu@email.com"
-            required
             type="email"
           />
         </div>
@@ -110,7 +109,6 @@ export default {
             v-model="user.password"
             class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white placeholder-gray-500"
             placeholder="••••••••"
-            required
             type="password"
           />
         </div>
