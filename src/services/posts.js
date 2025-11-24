@@ -24,7 +24,18 @@ export async function createPost({content, image_url = '', tags = []}) {
 export async function fetchPosts() {
   const {data, error} = await supabase
     .from('post')
-    .select()
+    .select(`      
+      content,
+      image_url,
+      tags,
+      created_at,
+      user_id,
+      user_profiles (
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
     .order('created_at', {ascending: false}); // Más recientes primero.
 
   if (error) {

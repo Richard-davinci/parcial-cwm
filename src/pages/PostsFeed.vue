@@ -24,7 +24,6 @@ export default {
   },
   methods: {
     async handleSubmit() {
-      // Agregar validación antes de llamar a createPost()
       if (!this.newPost.content.trim()) {
         alert('El contenido de la publicación no puede estar vacío.');
         return;
@@ -160,7 +159,7 @@ export default {
         <div class="flex items-center gap-3 mb-3 ">
           <RouterLink :to="`/usuario/${post.user_id}`" class="flex items-center gap-3 group">
             <img
-              :src="post.user_profiles?.avatar_url || '/img/default-avatar.png'"
+              :src="`/img/${post.user_profiles?.avatar_url}`"
               alt="Avatar"
               class="w-10 h-10 rounded-full border border-gray-700 "
             />
