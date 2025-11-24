@@ -165,7 +165,6 @@ export default {
             />
             <span class="font-bankgothic text-white">
               {{
-                post.user_profiles?.display_name ||
                 post.user_profiles?.username ||
                 'Usuario'
               }}

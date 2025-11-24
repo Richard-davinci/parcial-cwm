@@ -1,51 +1,64 @@
 <script>
-import { updateUserProfile, getUserProfileById } from "../services/user-profiles.js";
+import {createInitialUserState, subscribeToAuthStateChanges, updateAuthUser} from "../services/auth.js";
+
+let unsubscribeFromAuth = () => {
+};
+
 
 export default {
   name: "MyProfileEdit",
   data() {
     return {
-      user: {
-        id: null,
-        display_name: "",
-        bio: "",
-        location: "",
-        career: "",
-        skills: "",
-        experience_years: "",
-        current_project: "",
-        available_for_work: false,
-        website_url: "",
-        github_url: "",
-        linkedin_url: "",
-        instagram_url: "",
-        avatar_url: "",
-      },
+      userData: createInitialUserState(),
       loading: false,
     };
   },
-  async mounted() {
-    const { data } = await supabase.auth.getUser();
-    if (data?.user) {
-      const profile = await getUserProfileById(data.user.id);
-      this.user = { ...profile, skills: profile.skills?.join(", ") || "" };
-    }
-  },
+
   methods: {
     async handleSubmit() {
-      this.loading = true;
-      const updatedData = {
-        ...this.user,
-        skills: this.user.skills
-          ? this.user.skills.split(",").map((s) => s.trim())
-          : [],
-      };
+      try {
+        this.loading = true;
 
-      await updateUserProfile(this.user.id, updatedData);
 
+        const updatedData = {
+          ...this.userData,
+          skills: typeof this.userData.skills === 'string'
+            ? this.userData.skills.split(',').map(skill => skill.trim()).filter(skill => skill !== '')
+            : this.userData.skills
+        };
+
+        await updateAuthUser(updatedData);
+      } catch (error) {
+        console.error('[MyProfileEdit.vue] Error al actualizar el perfil:', error.message);
+        this.loading = false;
+      }
       this.loading = false;
-      this.$router.push("/mi-perfil");
+      this.$router.push("/mi-perfil");      
     },
+  },
+  async mounted() {
+    unsubscribeFromAuth = subscribeToAuthStateChanges(newUserState => {
+      this.userData = {
+        display_name: newUserState.display_name,
+        bio: newUserState.bio,
+        career: newUserState.career,
+        location: newUserState.location,
+        website_url: newUserState.website_url,
+        skills: Array.isArray(newUserState.skills)
+          ? newUserState.skills.join(', ')
+          : newUserState.skills || '',
+        experience_years: newUserState.experience_years,
+        current_project: newUserState.current_project,
+        available_for_work: newUserState.available_for_work,
+        github_url: newUserState.github_url,
+        linkedin_url: newUserState.linkedin_url,
+        instagram_url: newUserState.instagram_url,
+        avatar_url: newUserState.avatar_url
+      }
+    });
+  },
+  unmounted() {
+    unsubscribeFromAuth();
   },
 };
 </script>
@@ -63,10 +76,10 @@ export default {
         <div>
           <label class="block text-sm font-medium mb-1">Nombre público</label>
           <input
-            v-model="user.display_name"
-            type="text"
+            v-model="userData.display_name"
             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-turquesa"
             placeholder="Ej: Ricardo García"
+            type="text"
           />
         </div>
 
@@ -74,10 +87,10 @@ export default {
         <div>
           <label class="block text-sm font-medium mb-1">Ubicación</label>
           <input
-            v-model="user.location"
-            type="text"
+            v-model="userData.location"
             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-turquesa"
             placeholder="Ciudad, país"
+            type="text"
           />
         </div>
 
@@ -85,10 +98,11 @@ export default {
         <div class="md:col-span-2">
           <label class="block text-sm font-medium mb-1">Biografía</label>
           <textarea
-            v-model="user.bio"
-            rows="3"
-            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-turquesa"
+            v-model="userData.bio"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-turquesa resize-none"
             placeholder="Contanos un poco sobre vos..."
+            rows="9"
+            style="field-sizing: content; min-height: 80px; max-height: 200px;"
           ></textarea>
         </div>
 
@@ -96,10 +110,10 @@ export default {
         <div>
           <label class="block text-sm font-medium mb-1">Carrera / Rol</label>
           <input
-            v-model="user.career"
-            type="text"
+            v-model="userData.career"
             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-turquesa"
             placeholder="Ej: Fullstack Developer"
+            type="text"
           />
         </div>
 
@@ -107,11 +121,11 @@ export default {
         <div>
           <label class="block text-sm font-medium mb-1">Años de experiencia</label>
           <input
-            v-model.number="user.experience_years"
-            type="number"
-            min="0"
+            v-model.number="userData.experience_years"
             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-turquesa"
+            min="0"
             placeholder="Ej: 3"
+            type="number"
           />
         </div>
 
@@ -119,10 +133,10 @@ export default {
         <div class="md:col-span-2">
           <label class="block text-sm font-medium mb-1">Proyecto actual</label>
           <input
-            v-model="user.current_project"
-            type="text"
+            v-model="userData.current_project"
             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-turquesa"
             placeholder="En qué estás trabajando ahora"
+            type="text"
           />
         </div>
 
@@ -130,10 +144,10 @@ export default {
         <div class="md:col-span-2">
           <label class="block text-sm font-medium mb-1">Habilidades (separadas por comas)</label>
           <input
-            v-model="user.skills"
-            type="text"
+            v-model="userData.skills"
             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-turquesa"
             placeholder="Ej: Vue.js, PHP, Laravel, Tailwind"
+            type="text"
           />
         </div>
 
@@ -141,21 +155,21 @@ export default {
         <div class="flex items-center gap-2 md:col-span-2">
           <input
             id="available"
-            v-model="user.available_for_work"
-            type="checkbox"
+            v-model="userData.available_for_work"
             class="h-5 w-5 text-turquesa bg-gray-800 border-gray-700 rounded focus:ring-turquesa"
+            type="checkbox"
           />
-          <label for="available" class="text-sm">Disponible para nuevos proyectos</label>
+          <label class="text-sm" for="available">Disponible para nuevos proyectos</label>
         </div>
 
         <!-- Avatar URL -->
         <div class="md:col-span-2">
           <label class="block text-sm font-medium mb-1">Avatar (URL)</label>
           <input
-            v-model="user.avatar_url"
-            type="url"
+            v-model="userData.avatar_url"
             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-turquesa"
             placeholder="https://ejemplo.com/avatar.jpg"
+            type="input"
           />
         </div>
 
@@ -163,49 +177,49 @@ export default {
         <div>
           <label class="block text-sm font-medium mb-1">GitHub</label>
           <input
-            v-model="user.github_url"
-            type="url"
+            v-model="userData.github_url"
             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-turquesa"
             placeholder="https://github.com/usuario"
+            type="url"
           />
         </div>
 
         <div>
           <label class="block text-sm font-medium mb-1">LinkedIn</label>
           <input
-            v-model="user.linkedin_url"
-            type="url"
+            v-model="userData.linkedin_url"
             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-turquesa"
             placeholder="https://linkedin.com/in/usuario"
+            type="url"
           />
         </div>
 
         <div>
           <label class="block text-sm font-medium mb-1">Instagram</label>
           <input
-            v-model="user.instagram_url"
-            type="url"
+            v-model="userData.instagram_url"
             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-turquesa"
             placeholder="https://instagram.com/usuario"
+            type="url"
           />
         </div>
 
         <div>
           <label class="block text-sm font-medium mb-1">Website</label>
           <input
-            v-model="user.website_url"
-            type="url"
+            v-model="userData.website_url"
             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-turquesa"
             placeholder="https://mi-sitio.com"
+            type="url"
           />
         </div>
 
         <!-- Botón -->
         <div class="md:col-span-2">
           <button
-            type="submit"
-            class="w-full py-3 bg-turquesa text-black font-bankgothic uppercase rounded-lg hover:bg-[#0db38f] transition-colors"
             :disabled="loading"
+            class="w-full py-3 bg-turquesa text-black font-bankgothic uppercase rounded-lg hover:bg-[#0db38f] transition-colors"
+            type="submit"
           >
             {{ loading ? "Guardando..." : "Guardar cambios" }}
           </button>

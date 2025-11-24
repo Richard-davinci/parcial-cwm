@@ -1,3 +1,40 @@
+<script>
+import { getUserProfileById } from "../services/user-profiles.js";
+import { createInitialUserState } from "../services/auth.js";
+import { fetchUserPosts } from "../services/posts.js";
+
+let unsubscribeFromAuth = () => {};
+
+export default {
+  name: "UserProfile",
+  data() {
+    return {
+      user: createInitialUserState(),
+      posts: [],
+      loading: false
+    };
+  },
+  async mounted() {
+    try {
+      this.loading = true;
+      this.user = await getUserProfileById(this.$route.params.id);
+      await this.loadUserPosts();
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+    }
+    this.loading = false;
+  },
+  methods: {
+    async loadUserPosts() {
+      const {data, error} = await fetchUserPosts(this.user.id);
+      if (!error) this.posts = data;
+    },
+    formatDate(date) {
+      return date ? new Date(date).toLocaleDateString() : "No disponible";
+    }
+  },
+};
+</script>
 <template>
   <div class="min-h-screen bg-gray-950 text-white px-6 py-12">
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
@@ -15,8 +52,8 @@
             </div>
 
             <h1 class="text-3xl font-bankgothic text-turquesa mb-2">{{ user.display_name || 'Sin nombre' }}</h1>
-            <p class="text-gray-400 text-sm mb-1">@{{ user.username || 'sin_username' }}</p>
-            <p class="text-gray-400 text-sm mb-4">{{ user.email || 'Email no disponible' }}</p>
+            <p class="text-gray-400 text-sm mb-1">Usuario: @{{ user.username || 'sin_username' }}</p>
+            <p class="text-gray-400 text-sm mb-4">Email: {{ user.email || 'Email no disponible' }}</p>
 
             <p class="text-lg text-gray-300 mb-2">{{ user.career || 'Carrera no especificada' }}</p>
             <p class="text-sm text-gray-400 mb-4">{{ user.location || 'Ubicación no especificada' }}</p>
@@ -28,12 +65,6 @@
             Disponible para trabajar
           </span>
 
-            <RouterLink
-              class="bg-turquesa text-black font-bankgothic px-6 py-2 rounded-lg hover:bg-[#0db38f] transition-colors"
-              to="/mi-perfil/editar"
-            >
-              Editar perfil
-            </RouterLink>
           </div>
         </div>
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-8 shadow-lg space-y-6">
@@ -117,7 +148,7 @@
       </div>
       <div class="space-y-6 md:col-span-6 lg:col-span-8">
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-8 shadow-lg">
-          <h2 class="text-3xl font-bankgothic text-turquesa mb-8">Mis publicaciones</h2>
+          <h2 class="text-3xl font-bankgothic text-turquesa mb-8">Publicaciones</h2>
           <div v-if="posts.length > 0" class="space-y-6">
             <div
               v-for="post in posts"
@@ -147,54 +178,10 @@
           </div>
 
           <div v-else class="text-center text-gray-400 py-8">
-            Aún no publicaste nada.
+            Este usuario aún no ha publicado nada.
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-<script>
-import { getUserProfileById } from "../services/user-profiles.js";
-import { subscribeToAuthStateChanges } from "../services/auth.js";
-
-let unsubscribeFromAuth = () => {};
-
-export default {
-  name: "UserProfile",
-  data() {
-    return {
-      user: {},
-      posts: []
-    };
-  },
-  async mounted() {
-    unsubscribeFromAuth = subscribeToAuthStateChanges(async newUserState => {
-      this.user = newUserState;
-
-      if (this.user?.id) {
-        this.user = await getUserProfileById(this.user.id);
-        await this.loadUserPosts();
-      }
-    });
-  },
-  methods: {
-    async loadUserPosts() {
-      const { data, error } = await supabase
-        .from("post")
-        .select("*")
-        .eq("user_id", this.user.id)
-        .order("created_at", { ascending: false });
-
-      if (!error) this.posts = data;
-    },
-    formatDate(date) {
-      return date ? new Date(date).toLocaleDateString() : "No disponible";
-    }
-  },
-  unmounted() {
-    unsubscribeFromAuth();
-  }
-};
-</script>

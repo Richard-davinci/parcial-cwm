@@ -1,5 +1,5 @@
 import {createRouter, createWebHistory} from "vue-router";
-import {subscribeToAuthStateChanges} from "../services/auth";
+import {subscribeToAuthStateChanges, waitForAuthInitialization} from "../services/auth";
 
 import Home from "../pages/Home.vue";
 import PostsFeed from "../pages/PostsFeed.vue";
@@ -9,7 +9,6 @@ import MyProfile from "../pages/MyProfile.vue";
 import MyProfileEdit from "../pages/MyProfileEdit.vue";
 import UserProfile from "../pages/UserProfile.vue";
 
-
 const routes = [
   {path: "/", component: Home},
   {path: "/feed", component: PostsFeed, meta: {requiresAuth: true}},
@@ -18,8 +17,6 @@ const routes = [
   {path: "/mi-perfil", component: MyProfile, meta: {requiresAuth: true}},
   {path: "/mi-perfil/editar", component: MyProfileEdit, meta: {requiresAuth: true}},
   {path: "/usuario/:id", component: UserProfile, meta: {requiresAuth: true}},
-
-
 ];
 
 const router = createRouter({
@@ -33,9 +30,17 @@ let user = {
 }
 subscribeToAuthStateChanges(newUserState => user = newUserState);
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
+  // Esperar a que la autenticación se inicialice
+  await waitForAuthInitialization();
+  
   if (to.meta.requiresAuth && user.id === null) {
     return '/ingresar';
+  }
+  
+  // Evitar que usuarios autenticados vayan a login/register
+  if ((to.path === '/ingresar' || to.path === '/crear-cuenta') && user.id !== null) {
+    return '/feed'; // o '/' según tu preferencia
   }
 })
 

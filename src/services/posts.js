@@ -81,7 +81,8 @@ export async function fetchUserPosts(userId) {
     throw new Error(error.message);
   }
 
-  return data;
+  return { data, error };
+
 }
 
 
