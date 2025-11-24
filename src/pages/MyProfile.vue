@@ -1,58 +1,45 @@
 <script>
-import {getUserProfileById} from "../services/user-profiles.js";
-import {subscribeToAuthStateChanges} from "../services/auth.js";
-import userProfile from "./UserProfile.vue";
+import {createInitialUserState, subscribeToAuthStateChanges} from "../services/auth.js";
+import {fetchUserPosts} from "../services/posts.js";
 
-// Pantalla de perfil para el usuario autenticado: muestra sus datos y publicaciones.
+
 let unsubscribeFromAuth = () => {
 };
 
 export default {
   name: "MyProfile",
-  computed: {
-    userProfile() {
-      return userProfile
-    }
-  },
   data() {
     return {
-      // Datos del usuario logueado y posts asociados.
-      user: {},
+      user: createInitialUserState(),
       posts: []
     };
   },
-  async mounted() {
-    // Suscribe al estado de autenticacion para cargar perfil y posts del usuario activo. unsubscribeFromAuth =
-     subscribeToAuthStateChanges(async newUserState => {
-      this.user = newUserState;
-      if (this.user?.id) {
-        // Carga perfil completo desde la tabla user_profiles.
-        this.user = await getUserProfileById(this.user.id);
-        // Luego trae las publicaciones del mismo usuario.
-        await this.loadUserPosts();
-      }
-    });
+
+  mounted() {
+    unsubscribeFromAuth = subscribeToAuthStateChanges(newUserState => this.user = newUserState);
+    this.loadUserPosts();
   },
+
+  unmounted() {
+    unsubscribeFromAuth();
+  },
+
   methods: {
     async loadUserPosts() {
-      // Obtiene publicaciones del usuario ordenadas por fecha descendente.
-      const {data, error} = await supabase
-        .from("post")
-        .select("*")
-        .eq("user_id", this.user.id)
-        .order("created_at", {ascending: false});
-
-      if (!error) this.posts = data;
+      if (this.user.id) {
+        try {
+          this.posts = await fetchUserPosts(this.user.id);
+        } catch (error) {
+          console.error('Error al cargar los posts del usuario:', error);
+          this.posts = [];
+        }
+      }
     },
+
     formatDate(date) {
-      // Devuelve fecha legible o marcador si no hay fecha.
       return date ? new Date(date).toLocaleDateString() : "No disponible";
     }
   },
-  unmounted() {
-    // Libera la suscripcion a cambios de autenticacion.
-    unsubscribeFromAuth();
-  }
 };
 </script>
 <template>
@@ -64,7 +51,7 @@ export default {
           <div class="flex flex-col items-center text-center">
             <img
               v-if="user.avatar_url"
-              :src="user.avatar_url"
+              :src="`/img/${user.avatar_url || 'avatar.webp'}`"
               alt="Avatar"
               class="w-32 h-32 rounded-full mb-4 border-4 border-turquesa object-cover"
             />

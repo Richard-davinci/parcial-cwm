@@ -49,26 +49,9 @@
 import {supabase} from './supabase.js';
 import {createUserProfile, getUserProfileById, updateUserProfile} from "./user-profiles";
 
-let user = {
-  id: null,
-  email: null,
-  username: null,
-  display_name: null,
-  avatar_url: null,
-  bio: null,
-  location: null,
-  website_url: null,
-  career: null,
-  skills: [],
-  experience_years: null,
-  current_project: null,
-  available_for_work: false,
-  github_url: null,
-  linkedin_url: null,
-  instagram_url: null,
-  created_at: null,
-  updated_at: null,
-};
+
+
+let user = createInitialUserState();
 
 let observers = [];
 loadCurrentUserAuthState();
@@ -233,4 +216,27 @@ function setUser(data) {
     ...data,
   };
   notifyAll();
+}
+//funcion para inicilizar el user en null
+export function createInitialUserState() {
+  return {
+    id: null,
+    email: null,
+    username: null,
+    display_name: null,
+    avatar_url: null,
+    bio: null,
+    location: null,
+    website_url: null,
+    career: null,
+    skills: [],
+    experience_years: null,
+    current_project: null,
+    available_for_work: false,
+    github_url: null,
+    linkedin_url: null,
+    instagram_url: null,
+    created_at: null,
+    updated_at: null,
+  };
 }

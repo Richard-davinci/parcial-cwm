@@ -1,5 +1,5 @@
 <script>
-import {subscribeToAuthStateChanges} from "../services/auth.js";
+import {subscribeToAuthStateChanges, createInitialUserState} from "../services/auth.js";
 import {createPost, fetchPosts, subscribeToPosts} from "../services/posts.js";
 
 let unsubscribeFromAuth = () => {
@@ -12,12 +12,7 @@ export default {
 
   data() {
     return {
-      user: {
-        id: null,
-        username: null,
-        display_name: null,
-        avatar_url: null,
-      },
+      user: createInitialUserState(),
       posts: [],
       newPost: {
         content: "",
@@ -26,6 +21,31 @@ export default {
       },
       showModal: false,
     };
+  },
+  methods: {
+    async handleSubmit() {
+      // Agregar validación antes de llamar a createPost()
+      if (!this.newPost.content.trim()) {
+        alert('El contenido de la publicación no puede estar vacío.');
+        return;
+      }
+      try {
+        await createPost({
+          content: this.newPost.content,
+          image_url: this.newPost.image_url || null,
+          tags: this.newPost.tags
+            ? this.newPost.tags.split(",").map((t) => t.trim())
+            : [],
+        });
+        this.newPost.content = "";
+        this.newPost.image_url = "";
+        this.newPost.tags = "";
+      } catch (error) {
+        console.error('[PostsFeed.vue] Error al crear el post:', error);
+        alert('No se pudo crear la publicación. Por favor intenta nuevamente.');
+      }
+
+    },
   },
   async mounted() {
     unsubscribeFromAuth = subscribeToAuthStateChanges(
@@ -43,23 +63,7 @@ export default {
     unsubscribeFromAuth();
     unsubscribeFromPost();
   },
-  methods: {
-    async handleSubmit() {
-      if (!this.newPost.content.trim()) return;
 
-      await createPost({
-        content: this.newPost.content,
-        image_url: this.newPost.image_url || null,
-        tags: this.newPost.tags
-          ? this.newPost.tags.split(",").map((t) => t.trim())
-          : [],
-      });
-
-      this.newPost.content = "";
-      this.newPost.image_url = "";
-      this.newPost.tags = "";
-    },
-  },
 };
 </script>
 <template>
@@ -100,7 +104,6 @@ export default {
                 v-model="newPost.content"
                 class="w-full bg-gray-800 text-white p-3 rounded-lg border border-gray-700 focus:ring-2 focus:ring-turquesa focus:outline-none"
                 placeholder="Escribí tu publicación..."
-                required
                 rows="4"
               ></textarea>
             </div>
@@ -146,7 +149,7 @@ export default {
 
 
     <!-- Listado de posts -->
-    <h1 class="font-bankgothic text-turquesa text-2xl" >Publicaciones</h1>
+    <h1 class="font-bankgothic text-turquesa text-2xl">Publicaciones</h1>
     <div class="space-y-5 mt-6">
       <div
         v-for="post in posts"

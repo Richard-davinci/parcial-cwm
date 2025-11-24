@@ -90,3 +90,5 @@ export async function updateUserProfile(id, data) {
     throw new Error(error.message);
   }
 }
+
+
