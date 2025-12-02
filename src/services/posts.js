@@ -31,12 +31,13 @@ export async function fetchPosts() {
       created_at,
       user_id,
       user_profiles (
+        id,
         username,
         display_name,
         avatar_url
       )
     `)
-    .order('created_at', {ascending: false}); // Más recientes primero.
+    .order('created_at', {ascending: false});
 
   if (error) {
     console.error('[posts.js fetchPosts] Error al traer los posts.', error);
@@ -81,7 +82,7 @@ export async function fetchUserPosts(userId) {
     throw new Error(error.message);
   }
 
-  return { data, error };
+  return {data, error};
 
 }
 

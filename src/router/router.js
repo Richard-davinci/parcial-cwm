@@ -8,6 +8,7 @@ import Register from "../pages/Register.vue";
 import MyProfile from "../pages/MyProfile.vue";
 import MyProfileEdit from "../pages/MyProfileEdit.vue";
 import UserProfile from "../pages/UserProfile.vue";
+import PrivateChat from "../pages/PrivateChat.vue";
 
 const routes = [
   {path: "/", component: Home},
@@ -17,6 +18,7 @@ const routes = [
   {path: "/mi-perfil", component: MyProfile, meta: {requiresAuth: true}},
   {path: "/mi-perfil/editar", component: MyProfileEdit, meta: {requiresAuth: true}},
   {path: "/usuario/:id", component: UserProfile, meta: {requiresAuth: true}},
+  {path: '/usuario/:id/chat', component: PrivateChat, meta: {requiresAuth: true,},},
 ];
 
 const router = createRouter({
@@ -33,11 +35,11 @@ subscribeToAuthStateChanges(newUserState => user = newUserState);
 router.beforeEach(async (to) => {
   // Esperar a que la autenticación se inicialice
   await waitForAuthInitialization();
-  
+
   if (to.meta.requiresAuth && user.id === null) {
     return '/ingresar';
   }
-  
+
   // Evitar que usuarios autenticados vayan a login/register
   if ((to.path === '/ingresar' || to.path === '/crear-cuenta') && user.id !== null) {
     return '/feed'; // o '/' según tu preferencia

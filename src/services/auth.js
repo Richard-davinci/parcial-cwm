@@ -132,12 +132,20 @@ export async function logout() {
 
 export async function updateAuthUser(data) {
   try {
+
+    // Seguridad: el usuario debe estar cargado
+    if (!user.id) throw new Error("Usuario no autenticado");
+
     const profileUpdate = {
+      display_name: data.display_name,
+      username: data.username,
       bio: data.bio,
       career: data.career,
       location: data.location,
       website_url: data.website_url,
-      skills: data.skills,
+      skills: Array.isArray(data.skills)
+        ? data.skills
+        : (data.skills || "").split(",").map(s => s.trim()).filter(Boolean),
       experience_years: data.experience_years,
       current_project: data.current_project,
       available_for_work: data.available_for_work,
@@ -150,14 +158,16 @@ export async function updateAuthUser(data) {
 
     await updateUserProfile(user.id, profileUpdate);
 
+    // Refrescar store global
     setUser({
       ...user,
       ...profileUpdate,
     });
 
-    console.log('[auth.js] Perfil actualizado correctamente.');
+    console.log("[auth.js] Perfil actualizado correctamente.");
+
   } catch (error) {
-    console.error('[auth.js updateAuthUser] Error:', error.message);
+    console.error("[auth.js updateAuthUser] Error:", error.message);
     throw error;
   }
 }

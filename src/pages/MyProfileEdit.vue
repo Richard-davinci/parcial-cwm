@@ -19,14 +19,6 @@ export default {
       try {
         this.loading = true;
 
-
-        const updatedData = {
-          ...this.userData,
-          skills: typeof this.userData.skills === 'string'
-            ? this.userData.skills.split(',').map(skill => skill.trim()).filter(skill => skill !== '')
-            : this.userData.skills
-        };
-
         await updateAuthUser({
           ...this.userData,
         });

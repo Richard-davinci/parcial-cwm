@@ -206,6 +206,7 @@ export default {
               >
                 {{ user.instagram_url }}
               </a>
+
             </template>
 
           </div>

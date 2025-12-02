@@ -115,7 +115,14 @@ export default {
             >
               Disponible para trabajar
             </span>
+            <hr class="mb-4">
 
+            <RouterLink
+              class="block bg-gray-800 text-turquesa px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+              :to="`/usuario/${user.id}/chat`"
+            >
+              Iniciar conversación privada con {{ user.email }}
+            </RouterLink>
           </div>
         </div>
 
