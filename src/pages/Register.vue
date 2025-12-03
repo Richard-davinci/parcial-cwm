@@ -1,61 +1,54 @@
-<script>
-import { register } from "../services/auth.js";
+<script setup>
+import {ref} from 'vue';
+import {useRouter} from 'vue-router';
+import {register} from "../services/auth.js";
 import AlertMessage from "../components/AlertMessage.vue";
 
-export default {
-  name: "Register",
-  components: { AlertMessage },
+const router = useRouter();
 
-  data() {
-    return {
-      user: {
-        email: "",
-        password: "",
-        username: "",
-        display_name: "",
-      },
-      loading: false,
-      errorMessage: "",
-    };
-  },
+const user = ref({
+  email: "",
+  password: "",
+  username: "",
+  display_name: "",
+});
 
-  methods: {
-    async handleSubmit() {
-      this.errorMessage = "";
+const loading = ref(false);
+const errorMessage = ref("");
 
-      // VALIDACIÓN MÍNIMA
-      if (
-        !this.user.email ||
-        !this.user.password ||
-        !this.user.username ||
-        !this.user.display_name
-      ) {
-        this.errorMessage = "Completá todos los campos.";
-        return;
-      }
+const handleSubmit = async () => {
+  errorMessage.value = "";
 
-      this.loading = true;
+  // VALIDACIÓN MÍNIMA
+  if (
+    !user.value.email ||
+    !user.value.password ||
+    !user.value.username ||
+    !user.value.display_name
+  ) {
+    errorMessage.value = "Completá todos los campos.";
+    return;
+  }
 
-      try {
-        await register({
-          email: this.user.email,
-          password: this.user.password,
-          username: this.user.username,
-          display_name: this.user.display_name,
-        });
+  loading.value = true;
 
-        this.$router.push("/mi-perfil");
+  try {
+    await register({
+      email: user.value.email,
+      password: user.value.password,
+      username: user.value.username,
+      display_name: user.value.display_name,
+    });
 
-      } catch (error) {
-        this.errorMessage = error.message || "No se pudo crear tu cuenta.";
-      }
+    router.push("/mi-perfil");
 
-      this.loading = false;
-    },
-  },
+  } catch (error) {
+    errorMessage.value = error.message || "No se pudo crear tu cuenta.";
+  }
+
+  loading.value = false;
 };
 </script>
-
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-950 text-white px-4">
     <div class="w-full max-w-md bg-gray-900 rounded-xl shadow-lg p-8 border border-gray-700">

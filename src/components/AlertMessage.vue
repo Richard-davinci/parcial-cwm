@@ -1,62 +1,57 @@
-<script>
-export default {
-  name: "AlertMessage",
+<script setup>
+import {ref, computed} from 'vue'
 
-  props: {
-    type: {
-      type: String,
-      default: "info", // success | danger | warning | info
-    },
-    message: {
-      type: String,
-      default: null,
-    },
-    errors: {
-      type: Array,
-      default: () => [],
-    },
-    small: {
-      type: Boolean,
-      default: false,
-    },
-    closable: {
-      type: Boolean,
-      default: true,
-    },
+const props = defineProps({
+  type: {
+    type: String,
+    default: "info", // success | danger | warning | info
   },
+  message: {
+    type: String,
+    default: null,
+  },
+  errors: {
+    type: Array,
+    default: () => [],
+  },
+  small: {
+    type: Boolean,
+    default: false,
+  },
+  closable: {
+    type: Boolean,
+    default: true,
+  },
+})
 
-  data() {
-    return {
-      isVisible: true,
-      colors: {
-        success: "bg-turquesa text-black",
-        danger: "bg-red-600 text-white",
-        warning: "bg-yellow-400 text-black",
-        info: "bg-blue-600 text-white",
-      },
-      icons: {
-        success: "fa-circle-check",
-        danger: "fa-triangle-exclamation",
-        warning: "fa-circle-exclamation",
-        info: "fa-circle-info",
-      },
-    };
-  },
+const isVisible = ref(true)
 
-  computed: {
-    colorClass() {
-      return this.colors[this.type] ?? this.colors.info;
-    },
-    iconClass() {
-      return this.icons[this.type] ?? this.icons.info;
-    },
-    hasContent() {
-      return this.message || (Array.isArray(this.errors) && this.errors.length > 0);
-    },
-  },
-};
+const colors = {
+  success: "bg-turquesa text-black",
+  danger: "bg-red-600 text-white",
+  warning: "bg-yellow-400 text-black",
+  info: "bg-blue-600 text-white",
+}
+
+const icons = {
+  success: "fa-circle-check",
+  danger: "fa-triangle-exclamation",
+  warning: "fa-circle-exclamation",
+  info: "fa-circle-info",
+}
+
+const colorClass = computed(() => {
+  return colors[props.type] ?? colors.info
+})
+
+const iconClass = computed(() => {
+  return icons[props.type] ?? icons.info
+})
+
+const hasContent = computed(() => {
+  return props.message || (Array.isArray(props.errors) && props.errors.length > 0)
+})
 </script>
-
 <template>
   <div
     v-if="isVisible && hasContent"

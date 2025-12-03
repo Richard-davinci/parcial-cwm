@@ -1,112 +1,105 @@
-<script>
-import { subscribeToAuthStateChanges, createInitialUserState } from "../services/auth.js";
-import { createPost, fetchPosts, subscribeToPosts } from "../services/posts.js";
+<script setup>
+import {ref, onMounted, onUnmounted, nextTick} from 'vue';
+import {subscribeToAuthStateChanges, createInitialUserState} from "../services/auth.js";
+import {createPost, fetchPosts, subscribeToPosts} from "../services/posts.js";
 
-let unsubscribeFromAuth = () => {};
-let unsubscribeFromPost = () => {};
+const user = ref(createInitialUserState());
+const posts = ref([]);
+const newPost = ref({
+  content: "",
+  image_url: "",
+  tags: "",
+});
+const showModal = ref(false);
+const loadingPosts = ref(false);
+const loadingCreate = ref(false);
+const errorMessage = ref("");
 
-export default {
-  name: "PostsFeed",
-
-  data() {
-    return {
-      user: createInitialUserState(),
-      posts: [],
-      newPost: {
-        content: "",
-        image_url: "",
-        tags: "",
-      },
-      showModal: false,
-      loadingPosts: false,
-      loadingCreate: false,
-      errorMessage: "",
-    };
-  },
-
-  methods: {
-    // ========================
-    // CREAR PUBLICACION
-    // ========================
-    async handleSubmit() {
-      this.errorMessage = "";
-
-      // Validar login
-      if (!this.user.id) {
-        this.errorMessage = "Tenés que iniciar sesión para publicar.";
-        return;
-      }
-
-      // Validación contenido vacío
-      if (!this.newPost.content.trim()) {
-        this.errorMessage = "El contenido no puede estar vacío.";
-        return;
-      }
-
-      try {
-        this.loadingCreate = true;
-
-        await createPost({
-          content: this.newPost.content,
-          image_url: this.newPost.image_url || null,
-          tags: this.newPost.tags
-            ? this.newPost.tags.split(",").map(t => t.trim())
-            : [],
-        });
-
-        // Limpiar formulario
-        this.newPost.content = "";
-        this.newPost.image_url = "";
-        this.newPost.tags = "";
-        this.showModal = false;
-
-      } catch (error) {
-        console.error("[PostsFeed.vue] Error al crear el post:", error);
-        this.errorMessage = "No se pudo crear la publicación.";
-      }
-
-      this.loadingCreate = false;
-    },
-
-    // ========================
-    // CARGAR POSTS
-    // ========================
-    async loadPosts() {
-      try {
-        this.loadingPosts = true;
-        this.posts = await fetchPosts();
-      } catch (error) {
-        console.error("[PostsFeed.vue] Error al cargar posts:", error);
-        this.errorMessage = "No se pudieron cargar las publicaciones.";
-      }
-      this.loadingPosts = false;
-    },
-
-    // Abrir modal limpiando errores
-    openModal() {
-      this.errorMessage = "";
-      this.showModal = true;
-    }
-  },
-
-  async mounted() {
-    unsubscribeFromAuth = subscribeToAuthStateChanges(
-      (newUserState) => (this.user = newUserState)
-    );
-
-    await this.loadPosts();
-
-    unsubscribeFromPost = subscribeToPosts(async (newPost) => {
-      this.posts.unshift(newPost);
-      await this.$nextTick();
-    });
-  },
-
-  unmounted() {
-    unsubscribeFromAuth();
-    unsubscribeFromPost();
-  },
+let unsubscribeFromAuth = () => {
 };
+let unsubscribeFromPost = () => {
+};
+
+// ========================
+// CREAR PUBLICACION 
+// ========================
+async function handleSubmit() {
+  errorMessage.value = "";
+
+  // Validar login
+  if (!user.value.id) {
+    errorMessage.value = "Tenés que iniciar sesión para publicar.";
+    return;
+  }
+
+  // Validación contenido vacío
+  if (!newPost.value.content.trim()) {
+    errorMessage.value = "El contenido no puede estar vacío.";
+    return;
+  }
+
+  try {
+    loadingCreate.value = true;
+
+    await createPost({
+      content: newPost.value.content,
+      image_url: newPost.value.image_url || null,
+      tags: newPost.value.tags
+        ? newPost.value.tags.split(",").map(t => t.trim())
+        : [],
+    });
+
+    // Limpiar formulario
+    newPost.value.content = "";
+    newPost.value.image_url = "";
+    newPost.value.tags = "";
+    showModal.value = false;
+
+  } catch (error) {
+    console.error("[PostsFeed.vue] Error al crear el post:", error);
+    errorMessage.value = "No se pudo crear la publicación.";
+  }
+
+  loadingCreate.value = false;
+}
+
+// ========================
+// CARGAR POSTS
+// ========================
+async function loadPosts() {
+  try {
+    loadingPosts.value = true;
+    posts.value = await fetchPosts();
+  } catch (error) {
+    console.error("[PostsFeed.vue] Error al cargar posts:", error);
+    errorMessage.value = "No se pudieron cargar las publicaciones.";
+  }
+  loadingPosts.value = false;
+}
+
+// Abrir modal limpiando errores
+function openModal() {
+  errorMessage.value = "";
+  showModal.value = true;
+}
+
+onMounted(async () => {
+  unsubscribeFromAuth = subscribeToAuthStateChanges(
+    (newUserState) => (user.value = newUserState)
+  );
+
+  await loadPosts();
+
+  unsubscribeFromPost = subscribeToPosts(async (newPost) => {
+    posts.value.unshift(newPost);
+    await nextTick();
+  });
+});
+
+onUnmounted(() => {
+  unsubscribeFromAuth();
+  unsubscribeFromPost();
+});
 </script>
 
 <template>

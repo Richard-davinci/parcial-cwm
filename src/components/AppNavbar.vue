@@ -1,71 +1,57 @@
-<script>
-import { logout, subscribeToAuthStateChanges } from "../services/auth";
+<script setup>
+import {ref, onMounted} from 'vue';
+import {useRouter} from 'vue-router';
+import {logout, subscribeToAuthStateChanges} from "../services/auth";
 
-export default {
-  name: "AppNavbar",
+const router = useRouter();
+const menuOpen = ref(false);
+const user = ref({
+  id: null,
+  email: null,
+});
 
-  data() {
-    return {
-      menuOpen: false,
-      user: {
-        id: null,
-        email: null,
-      },
+// Logout states
+const logoutLoading = ref(false);
+const showLogoutConfirm = ref(false);
+const logoutError = ref("");
 
-      // Logout
-      logoutLoading: false,
-      showLogoutConfirm: false,
-      logoutError: "",
-    };
-  },
-
-  methods: {
-    toggleMenu() {
-      this.menuOpen = !this.menuOpen;
-    },
-
-    closeMenu() {
-      this.menuOpen = false;
-    },
-
-    // ===============================
-    // MOSTRAR CONFIRMACIÓN DE LOGOUT
-    // ===============================
-    confirmLogout() {
-      this.showLogoutConfirm = true;
-      this.logoutError = "";
-    },
-
-    // ===============================
-    // CERRAR SESIÓN
-    // ===============================
-    async handleLogout() {
-      this.logoutLoading = true;
-      this.logoutError = "";
-
-      try {
-        await logout();
-
-        this.showLogoutConfirm = false;
-        this.$router.push("/ingresar");
-      } catch (error) {
-        console.error("[Navbar] Error al cerrar sesión:", error.message);
-        this.logoutError = "No se pudo cerrar la sesión. Intentá nuevamente.";
-      }
-
-      this.logoutLoading = false;
-    },
-
-    async onLogoutFromOverlay() {
-      this.closeMenu();
-      this.confirmLogout();
-    },
-  },
-
-  mounted() {
-    subscribeToAuthStateChanges((newUserState) => (this.user = newUserState));
-  },
+const toggleMenu = () => {
+  menuOpen.value = !menuOpen.value;
 };
+
+const closeMenu = () => {
+  menuOpen.value = false;
+};
+
+const confirmLogout = () => {
+  showLogoutConfirm.value = true;
+  logoutError.value = "";
+};
+
+const handleLogout = async () => {
+  logoutLoading.value = true;
+  logoutError.value = "";
+
+  try {
+    await logout();
+    showLogoutConfirm.value = false;
+    router.push("/ingresar");
+  } catch (error) {
+    console.error("[Navbar] Error al cerrar sesión:", error.message);
+    logoutError.value = "No se pudo cerrar la sesión. Intentá nuevamente.";
+  }
+
+  logoutLoading.value = false;
+};
+
+const onLogoutFromOverlay = async () => {
+  closeMenu();
+  confirmLogout();
+};
+
+onMounted(() => {
+  subscribeToAuthStateChanges((newUserState) => user.value = newUserState);
+});
 </script>
 
 <template>

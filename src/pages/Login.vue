@@ -1,45 +1,38 @@
-<script>
+<script setup>
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { login } from "../services/auth.js";
 import AlertMessage from "../components/AlertMessage.vue";
 
-export default {
-  name: "Login",
-  components: { AlertMessage },
+const user = ref({
+  email: "",
+  password: "",
+});
+const loading = ref(false);
+const errorMessage = ref("");
+const router = useRouter();
 
-  data() {
-    return {
-      user: {
-        email: "",
-        password: "",
-      },
-      loading: false,         //  loader real
-      errorMessage: "",       //  error
-    };
-  },
+async function handleSubmit() {
+  errorMessage.value = "";
+  loading.value = true;
 
-  methods: {
-    async handleSubmit() {
-      this.errorMessage = "";
-      this.loading = true;   // 
+  try {
+    if (!user.value.email || !user.value.password) {
+      errorMessage.value = "Completá todos los campos.";
+      loading.value = false;
+      return;
+    }
 
-      try {
-        if (!this.user.email || !this.user.password) {
-          this.errorMessage = "Completá todos los campos.";
-          this.loading = false;
-          return;
-        }
+    await login(user.value.email, user.value.password);
+    await router.push("/mi-perfil");
 
-        await login(this.user.email, this.user.password);
-        this.$router.push("/mi-perfil");
+  } catch (error) {
+    errorMessage.value = error.message || "Error al iniciar sesión.";
+  }
 
-      } catch (error) {
-        this.errorMessage = error.message || "Error al iniciar sesión.";
-      }
+  loading.value = false;
+}
 
-      this.loading = false;  // 
-    },
-  },
-};
 </script>
 
 <template>

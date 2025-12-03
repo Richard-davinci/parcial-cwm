@@ -1,67 +1,59 @@
-<script>
+<script setup>
+import {ref, onMounted, onUnmounted} from 'vue'
 import {
   createInitialUserState,
   subscribeToAuthStateChanges
 } from "../services/auth.js";
-import { fetchUserPosts } from "../services/posts.js";
+import {fetchUserPosts} from "../services/posts.js";
 
-let unsubscribeFromAuth = () => {};
+const user = ref(createInitialUserState())
+const posts = ref([])
+const loading = ref(true)
+const errorMessage = ref('')
 
-export default {
-  name: "MyProfile",
-
-  data() {
-    return {
-      user: createInitialUserState(),
-      posts: [],
-      loading: true,
-      errorMessage: ""
-    };
-  },
-
-  mounted() {
-    unsubscribeFromAuth = subscribeToAuthStateChanges(async newUserState => {
-      this.user = newUserState;
-
-      if (!this.user || !this.user.id) {
-        this.errorMessage = "No se pudo cargar tu perfil.";
-        this.loading = false;
-        return;
-      }
-
-      await this.loadUserPosts();
-      this.loading = false;
-    });
-  },
-
-  unmounted() {
-    unsubscribeFromAuth();
-  },
-
-  methods: {
-    async loadUserPosts() {
-      try {
-        const { data, error } = await fetchUserPosts(this.user.id);
-
-        if (error) {
-          this.errorMessage = "No se pudieron cargar tus publicaciones.";
-          this.posts = [];
-          return;
-        }
-
-        this.posts = data;
-      } catch (error) {
-        console.error("Error al cargar los posts:", error);
-        this.errorMessage = "Error al cargar tus publicaciones.";
-        this.posts = [];
-      }
-    },
-
-    formatDate(date) {
-      return date ? new Date(date).toLocaleDateString() : "No disponible";
-    }
-  },
+let unsubscribeFromAuth = () => {
 };
+
+async function loadUserPosts() {
+  try {
+    const {data, error} = await fetchUserPosts(user.value.id);
+
+    if (error) {
+      errorMessage.value = "No se pudieron cargar tus publicaciones.";
+      posts.value = [];
+      return;
+    }
+
+    posts.value = data;
+  } catch (error) {
+    console.error("Error al cargar los posts:", error);
+    errorMessage.value = "Error al cargar tus publicaciones.";
+    posts.value = [];
+  }
+}
+
+function formatDate(date) {
+  return date ? new Date(date).toLocaleDateString() : "No disponible";
+}
+
+onMounted(() => {
+  unsubscribeFromAuth = subscribeToAuthStateChanges(async newUserState => {
+    user.value = newUserState;
+
+    if (!user.value || !user.value.id) {
+      errorMessage.value = "No se pudo cargar tu perfil.";
+      loading.value = false;
+      return;
+    }
+
+    await loadUserPosts();
+    loading.value = false;
+  });
+})
+
+onUnmounted(() => {
+  unsubscribeFromAuth();
+})
 </script>
 
 <template>

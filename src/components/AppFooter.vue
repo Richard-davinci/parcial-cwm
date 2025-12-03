@@ -1,3 +1,11 @@
+<script>
+import {RouterLink} from "vue-router";
+
+export default {
+  name: 'AppFooter',
+  components: {RouterLink},
+}
+</script>
 
 <template>
   <footer class="py-4 bg-black border-t border-gray-700">
@@ -30,14 +38,3 @@
     </div>
   </footer>
 </template>
-
-<script>
-import {RouterLink} from "vue-router";
-
-export default {
-  name: 'AppFooter',
-  components: {RouterLink},
-}
-</script>
-
-

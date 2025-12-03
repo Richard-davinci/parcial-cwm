@@ -97,5 +97,53 @@ export async function updateUserProfile(id, data) {
     throw new Error(error.message);
   }
 }
+export async function fetchAllUserProfiles() {
+  const { data, error } = await supabase
+    .from("user_profiles")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[user-profiles.js] Error al obtener perfiles", error);
+    throw error;
+  }
+
+  return data || [];
+}
+
+/**
+ * Obtener N usuarios destacados (random)
+ */
+export async function fetchFeaturedUsers(limit = 4) {
+  try {
+    const users = await fetchAllUserProfiles();
+
+    // Mezcla en memoria
+    const shuffled = users
+      .sort(() => Math.random() - 0.5)
+      .slice(0, limit);
+
+    return shuffled;
+  } catch (error) {
+    console.error("[user-profiles.js] Error al obtener featured users", error);
+    throw error;
+  }
+}
+
+/**
+ * Contar usuarios totales
+ */
+export async function fetchTotalUsers() {
+  const { count, error } = await supabase
+    .from("user_profiles")
+    .select("*", { count: "exact", head: true });
+
+  if (error) {
+    console.error("[user-profiles.js] Error al contar usuarios", error);
+    throw error;
+  }
+
+  return count || 0;
+}
 
 

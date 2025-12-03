@@ -1,62 +1,55 @@
-<script>
+<script setup>
+import {ref, onMounted, onUnmounted} from 'vue'
+import {useRouter} from 'vue-router'
 import {createInitialUserState, subscribeToAuthStateChanges, updateAuthUser} from "../services/auth.js";
 
+const router = useRouter()
+const userData = ref(createInitialUserState())
+const loading = ref(false)
+
 let unsubscribeFromAuth = () => {
-};
+}
 
-
-export default {
-  name: "MyProfileEdit",
-  data() {
-    return {
-      userData: createInitialUserState(),
-      loading: false,
-    };
-  },
-
-  methods: {
-    async handleSubmit() {
-      try {
-        this.loading = true;
-
-        await updateAuthUser({
-          ...this.userData,
-        });
-      } catch (error) {
-        console.error('[MyProfileEdit.vue] Error al actualizar el perfil:', error.message);
-        this.loading = false;
-      }
-      this.loading = false;
-      this.$router.push("/mi-perfil");
-    },
-  },
-  async mounted() {
-    unsubscribeFromAuth = subscribeToAuthStateChanges(newUserState => {
-      this.userData = {
-        display_name: newUserState.display_name,
-        bio: newUserState.bio,
-        career: newUserState.career,
-        location: newUserState.location,
-        website_url: newUserState.website_url,
-        skills: Array.isArray(newUserState.skills)
-          ? newUserState.skills.join(', ')
-          : newUserState.skills || '',
-        experience_years: newUserState.experience_years,
-        current_project: newUserState.current_project,
-        available_for_work: newUserState.available_for_work,
-        github_url: newUserState.github_url,
-        linkedin_url: newUserState.linkedin_url,
-        instagram_url: newUserState.instagram_url,
-        avatar_url: newUserState.avatar_url
-      }
+async function handleSubmit() {
+  try {
+    loading.value = true;
+    await updateAuthUser({
+      ...userData.value,
     });
-  },
-  unmounted() {
-    unsubscribeFromAuth();
-  },
-};
-</script>
+  } catch (error) {
+    console.error('[MyProfileEdit.vue] Error al actualizar el perfil:', error.message);
+    loading.value = false;
+  }
+  loading.value = false;
+  router.push("/mi-perfil");
+}
 
+onMounted(() => {
+  unsubscribeFromAuth = subscribeToAuthStateChanges(newUserState => {
+    userData.value = {
+      display_name: newUserState.display_name,
+      bio: newUserState.bio,
+      career: newUserState.career,
+      location: newUserState.location,
+      website_url: newUserState.website_url,
+      skills: Array.isArray(newUserState.skills)
+        ? newUserState.skills.join(', ')
+        : newUserState.skills || '',
+      experience_years: newUserState.experience_years,
+      current_project: newUserState.current_project,
+      available_for_work: newUserState.available_for_work,
+      github_url: newUserState.github_url,
+      linkedin_url: newUserState.linkedin_url,
+      instagram_url: newUserState.instagram_url,
+      avatar_url: newUserState.avatar_url
+    }
+  });
+})
+
+onUnmounted(() => {
+  unsubscribeFromAuth();
+})
+</script>
 
 <template>
   <div class="min-h-screen bg-gray-950 text-white flex items-center justify-center px-4 py-12">

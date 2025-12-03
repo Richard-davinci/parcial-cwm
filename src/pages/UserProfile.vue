@@ -1,62 +1,54 @@
-<script>
-import { getUserProfileById } from "../services/user-profiles.js";
-import { createInitialUserState } from "../services/auth.js";
-import { fetchUserPosts } from "../services/posts.js";
+<script setup>
+import {ref, onMounted} from 'vue';
+import {useRoute} from 'vue-router';
+import {getUserProfileById} from "../services/user-profiles.js";
+import {createInitialUserState} from "../services/auth.js";
+import {fetchUserPosts} from "../services/posts.js";
 
-export default {
-  name: "UserProfile",
-  data() {
-    return {
-      user: createInitialUserState(),
-      posts: [],
-      loading: true, //  loader activado por defecto
-      errorMessage: "", //  para manejar errores reales
-    };
-  },
+const route = useRoute();
+const user = ref(createInitialUserState());
+const posts = ref([]);
+const loading = ref(true);
+const errorMessage = ref('');
 
-  async mounted() {
-    try {
-      this.loading = true;
+async function loadUserPosts() {
+  const {data, error} = await fetchUserPosts(user.value.id);
 
-      //  Intentar cargar usuario
-      const result = await getUserProfileById(this.$route.params.id);
+  if (error) {
+    errorMessage.value = "No se pudieron cargar las publicaciones.";
+    return;
+  }
 
-      if (!result) {
-        this.errorMessage = "No se encontró este usuario.";
-        this.loading = false;
-        return;
-      }
+  posts.value = data;
+}
 
-      this.user = result;
+function formatDate(date) {
+  return date ? new Date(date).toLocaleDateString() : "No disponible";
+}
 
-      //  Cargar posts de ese usuario
-      await this.loadUserPosts();
+onMounted(async () => {
+  try {
+    loading.value = true;
 
-    } catch (error) {
-      console.error("Error loading user profile:", error);
-      this.errorMessage = "Error cargando el perfil del usuario.";
+    const result = await getUserProfileById(route.params.id);
+
+    if (!result) {
+      errorMessage.value = "No se encontró este usuario.";
+      loading.value = false;
+      return;
     }
 
-    this.loading = false;
-  },
+    user.value = result;
 
-  methods: {
-    async loadUserPosts() {
-      const { data, error } = await fetchUserPosts(this.user.id);
+    await loadUserPosts();
 
-      if (error) {
-        this.errorMessage = "No se pudieron cargar las publicaciones.";
-        return;
-      }
+  } catch (error) {
+    console.error("Error loading user profile:", error);
+    errorMessage.value = "Error cargando el perfil del usuario.";
+  }
 
-      this.posts = data;
-    },
-
-    formatDate(date) {
-      return date ? new Date(date).toLocaleDateString() : "No disponible";
-    }
-  },
-};
+  loading.value = false;
+});
 </script>
 
 <template>
