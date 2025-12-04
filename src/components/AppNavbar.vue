@@ -56,7 +56,7 @@ onMounted(() => {
 
 <template>
   <nav
-    class="w-full flex items-center justify-between px-6 py-4 bg-gray-800 text-white shadow-lg border-b border-gray-700 fixed"
+    class="w-full flex items-center justify-between px-6 py-4 bg-gradient-dark text-white shadow-lg border-b border-white-700 fixed"
   >
     <RouterLink class="text-2xl font-quantum" to="/">
       Lili-Studio Comunidad

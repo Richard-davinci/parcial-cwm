@@ -6,7 +6,7 @@
     --turquesa: #0ec49f;
     --verde: #2b0a45; /* violeta verdoso oscuro (fondo/hover mix) */
     --negro: #0d0d0d;
-    --blanco: #dcdcdc;
+    --blanco: #bebbbb;
     --gris: #43494e;
 }
 /*estilos*/
@@ -44,7 +44,6 @@
 html {
     font-size: 100%;
     line-height: 1.15;
-    background-color: rgb(225, 225, 225);
     font-family: 'Roboto', sans-serif;
     height: 100%;
 }
@@ -52,8 +51,6 @@ html {
 body {
     min-height: 100vh;
     scroll-behavior: smooth;
-    text-rendering: optimizeSpeed;
-    background-color: rgb(225, 225, 225);
     font-family: 'Roboto', sans-serif;
     height: 100%;
     display: flex;
@@ -65,4 +62,118 @@ main {
 }
 h1, h2, h3, h4, h5, h6 {
     font-family: 'BankGothic', sans-serif;
+}
+/* Colores de fondo */
+.bg-azul {
+    background-color: var(--azul);
+    color: #fff;
+}
+
+.bg-azul-light {
+    background-color: var(--azul-light);
+}
+
+.bg-turquesa {
+    background-color: var(--turquesa);
+}
+
+.bg-verde {
+    background-color: var(--verde);
+}
+
+.bg-negro {
+    background-color: var(--negro);
+}
+
+.bg-blanco {
+    background-color: var(--blanco);
+}
+
+.bg-gris {
+    background-color: var(--gris);
+}
+.bg-gradient-dark {
+    background:
+            radial-gradient(1200px 600px at 10% -10%, rgba(0, 255, 204, .15), transparent 40%),
+            radial-gradient(1200px 600px at 90% 0%, rgba(2, 116, 190, .2), transparent 40%),
+            var(--negro);
+}
+
+
+
+/* Colores de texto */
+.text-azul {
+    color: var(--azul);
+}
+
+.text-azul-light {
+    color: var(--azul-light);
+}
+
+.text-turquesa {
+    color: var(--turquesa);
+}
+
+.text-verde {
+    color: var(--verde);
+}
+
+.text-negro {
+    color: var(--negro);
+}
+
+.text-blanco {
+    color: var(--blanco);
+}
+
+.text-gris {
+    color: var(--gris);
+}
+
+/* Botón turquesa sólido */
+.btn-turquesa {
+    background-color: var(--turquesa);
+    color: var(--blanco);
+    border: 2px solid var(--turquesa);
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.btn-turquesa:hover {
+    background-color: #0ba082;
+    border-color: #0ba082;
+    transform: translateY(-1px);
+}
+
+.btn-turquesa:active {
+    transform: translateY(0);
+}
+
+/* Botón turquesa outline */
+.btn-outline-turquesa {
+    background-color: transparent;
+    color: var(--turquesa);
+    border: 2px solid var(--turquesa);
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.btn-outline-turquesa:hover {
+    background-color: var(--turquesa);
+    color: var(--blanco);
+    transform: translateY(-1px);
+}
+
+.btn-outline-turquesa:active {
+    transform: translateY(0);
 }

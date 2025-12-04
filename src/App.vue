@@ -9,9 +9,9 @@ export default {
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen bg-gray-950">
+  <div class="flex flex-col min-h-screen bg-blanco">
     <AppNavbar/>
-    <main class="bg-gray-950 pt-20">
+    <main class="pt-15 bg-azul">
       <RouterView/>
     </main>
     <AppFooter/>

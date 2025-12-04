@@ -36,13 +36,11 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="py-10 flex items-center justify-center text-white">
-    <div class="w-full max-w-md bg-gray-900 rounded-xl shadow-lg p-8 border border-gray-700">
-
+  <section class="py-10 flex items-center justify-center">
+    <div class="w-full max-w-md  rounded-xl shadow-lg p-8 border border-gray-500 bg-gray-900">
       <h1 class="text-3xl font-bankgothic text-turquesa text-center mb-6">
         Iniciar Sesión
       </h1>
-
       <!--  Mostrar errores -->
       <AlertMessage
         v-if="errorMessage"
@@ -58,7 +56,7 @@ async function handleSubmit() {
           <input
             id="email"
             v-model="user.email"
-            class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white placeholder-gray-500"
+            class="w-full px-4 py-2 rounded-lg bg-white border border-gray-700 focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white placeholder-gray-500"
             placeholder="tu@email.com"
             type="email"
           />
@@ -69,7 +67,7 @@ async function handleSubmit() {
           <input
             id="password"
             v-model="user.password"
-            class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white placeholder-gray-500"
+            class="w-full px-4 py-2 rounded-lg bg-white border border-gray-700 focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white placeholder-gray-500"
             placeholder="••••••••"
             type="password"
           />
@@ -104,5 +102,5 @@ async function handleSubmit() {
         </router-link>
       </p>
     </div>
-  </div>
+  </section>
 </template>

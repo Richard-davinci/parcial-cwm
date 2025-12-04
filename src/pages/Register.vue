@@ -19,7 +19,6 @@ const errorMessage = ref("");
 const handleSubmit = async () => {
   errorMessage.value = "";
 
-  // VALIDACIÓN MÍNIMA
   if (
     !user.value.email ||
     !user.value.password ||
@@ -40,7 +39,7 @@ const handleSubmit = async () => {
       display_name: user.value.display_name,
     });
 
-    router.push("/mi-perfil");
+    await router.push("/mi-perfil");
 
   } catch (error) {
     errorMessage.value = error.message || "No se pudo crear tu cuenta.";
@@ -50,14 +49,14 @@ const handleSubmit = async () => {
 };
 </script>
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-950 text-white px-4">
-    <div class="w-full max-w-md bg-gray-900 rounded-xl shadow-lg p-8 border border-gray-700">
+
+  <div class="min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-md bg-gray-900 rounded-xl shadow-lg p-8 border border-gray-500">
 
       <h1 class="text-3xl font-bankgothic text-turquesa text-center mb-6">
         Crear cuenta
       </h1>
 
-      <!-- ALERTA -->
       <AlertMessage
         v-if="errorMessage"
         type="danger"
@@ -69,12 +68,12 @@ const handleSubmit = async () => {
 
         <div>
           <label class="block text-sm font-medium text-gray-300 mb-1" for="username">
-            Nombre de usuario
+            Usuario
           </label>
           <input
             id="username"
             v-model="user.username"
-            class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700
+            class="w-full px-4 py-2 rounded-lg bg-white border border-gray-700
                    focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white"
             type="text"
           />
@@ -87,7 +86,7 @@ const handleSubmit = async () => {
           <input
             id="display_name"
             v-model="user.display_name"
-            class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700
+            class="w-full px-4 py-2 rounded-lg bg-white border border-gray-700
                    focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white"
             type="text"
           />
@@ -100,7 +99,7 @@ const handleSubmit = async () => {
           <input
             id="email"
             v-model="user.email"
-            class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700
+            class="w-full px-4 py-2 rounded-lg bg-white border border-gray-700
                    focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white"
             placeholder="lili-studio@email.com"
             type="email"
@@ -114,7 +113,7 @@ const handleSubmit = async () => {
           <input
             id="password"
             v-model="user.password"
-            class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700
+            class="w-full px-4 py-2 rounded-lg bg-white border border-gray-700
                    focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white"
             placeholder="••••••••"
             type="password"
