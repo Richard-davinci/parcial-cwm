@@ -1,11 +1,5 @@
-/**
- * ===========================================================
- * services/comments.js — Servicio de comentarios
- * ===========================================================
- */
 import {supabase} from './supabase.js';
 
-// Crear un comentario
 export async function createComment({content, post_id, parent_comment_id = null}) {
   const user = await supabase.auth.getUser();
 
@@ -46,7 +40,7 @@ export async function createComment({content, post_id, parent_comment_id = null}
   return data;
 }
 
-// Obtener comentarios de un post
+// traigo los comentarios de un post
 export async function fetchPostComments(postId) {
   const {data, error} = await supabase
     .from('comments')
@@ -73,18 +67,15 @@ export async function fetchPostComments(postId) {
     throw new Error(error.message);
   }
 
-  // Organizar comentarios en estructura jerárquica
   const comments = data || [];
   const commentMap = new Map();
   const rootComments = [];
 
-  // Primera pasada: crear mapa de comentarios
   comments.forEach(comment => {
     comment.replies = [];
     commentMap.set(comment.id, comment);
   });
 
-  // Segunda pasada: organizar jerarquía
   comments.forEach(comment => {
     if (comment.parent_comment_id) {
       const parent = commentMap.get(comment.parent_comment_id);
@@ -99,7 +90,6 @@ export async function fetchPostComments(postId) {
   return rootComments;
 }
 
-// Actualizar un comentario
 export async function updateComment(commentId, {content}) {
   const user = await supabase.auth.getUser();
 
@@ -140,7 +130,6 @@ export async function updateComment(commentId, {content}) {
   return data;
 }
 
-// Eliminar un comentario
 export async function deleteComment(commentId) {
   const user = await supabase.auth.getUser();
 
@@ -160,7 +149,6 @@ export async function deleteComment(commentId) {
   }
 }
 
-// Suscribirse a cambios en comentarios de un post
 export function subscribeToPostComments(postId, callback) {
   const channel = supabase.channel(`comments_post_${postId}`);
 
@@ -184,7 +172,6 @@ export function subscribeToPostComments(postId, callback) {
   };
 }
 
-// Contar comentarios de un post
 export async function getCommentsCount(postId) {
   const {count, error} = await supabase
     .from('comments')
