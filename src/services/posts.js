@@ -25,6 +25,7 @@ export async function fetchPosts() {
   const {data, error} = await supabase
     .from('post')
     .select(`      
+      id,
       content,
       image_url,
       tags,
@@ -46,7 +47,6 @@ export async function fetchPosts() {
 
   return data;
 }
-
 
 export function subscribeToPosts(callback) {
   const postChannel = supabase.channel('post_changes');
@@ -83,7 +83,62 @@ export async function fetchUserPosts(userId) {
   }
 
   return {data, error};
-
 }
 
+export async function updatePost(postId, {content, image_url = '', tags = []}) {
+  const user = await supabase.auth.getUser();
 
+  if (!user.data.user) {
+    throw new Error('Usuario no autenticado');
+  }
+
+  // Validar que postId no sea undefined o null
+  if (!postId) {
+    throw new Error('ID del post no válido');
+  }
+
+  const {data, error} = await supabase
+    .from('post')
+    .update({
+      content,
+      image_url: image_url || null, // Convertir string vacío a null
+      tags,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', postId)
+    .eq('user_id', user.data.user.id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('[posts.js updatePost] Error al actualizar el post.', error);
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
+// Eliminar un post
+export async function deletePost(postId) {
+  const user = await supabase.auth.getUser();
+
+  if (!user.data.user) {
+    throw new Error('Usuario no autenticado');
+  }
+
+  // Validar que postId no sea undefined o null
+  if (!postId) {
+    throw new Error('ID del post no válido');
+  }
+
+  const {error} = await supabase
+    .from('post')
+    .delete()
+    .eq('id', postId)
+    .eq('user_id', user.data.user.id);
+
+  if (error) {
+    console.error('[posts.js deletePost] Error al eliminar el post.', error);
+    throw new Error(error.message);
+  }
+}
