@@ -1,13 +1,13 @@
 <script setup>
 import {ref, onMounted, onUnmounted, nextTick} from 'vue';
 import {useRoute} from 'vue-router';
-import {subscribeToAuthStateChanges} from '../services/auth';
+import {subscribeToAuthStateChanges} from '../../services/auth.js';
 import {
   fetchLastPrivateChatMessages,
   sendPrivateChatMessage,
   subscribeToNewPrivateChatMessages
-} from '../services/private-chat';
-import {getUserProfileById} from '../services/user-profiles';
+} from '../../services/private-chat.js';
+import {getUserProfileById} from '../../services/user-profiles.js';
 
 const route = useRoute();
 const messages = ref([]);

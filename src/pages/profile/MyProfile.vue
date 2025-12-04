@@ -1,88 +1,91 @@
 <script setup>
-import {ref, onMounted} from 'vue';
-import {useRoute} from 'vue-router';
-import {getUserProfileById} from "../services/user-profiles.js";
-import {createInitialUserState} from "../services/auth.js";
-import {fetchUserPosts} from "../services/posts.js";
+import {ref, onMounted, onUnmounted} from 'vue'
+import {
+  createInitialUserState,
+  subscribeToAuthStateChanges
+} from "../../services/auth.js";
+import {fetchUserPosts} from "../../services/posts.js";
 
-const route = useRoute();
-const user = ref(createInitialUserState());
-const posts = ref([]);
-const loading = ref(true);
-const errorMessage = ref('');
+const user = ref(createInitialUserState())
+const posts = ref([])
+const loading = ref(true)
+const errorMessage = ref('')
+
+let unsubscribeFromAuth = () => {
+};
 
 async function loadUserPosts() {
-  const {data, error} = await fetchUserPosts(user.value.id);
+  try {
+    const {data, error} = await fetchUserPosts(user.value.id);
 
-  if (error) {
-    errorMessage.value = "No se pudieron cargar las publicaciones.";
-    return;
+    if (error) {
+      errorMessage.value = "No se pudieron cargar tus publicaciones.";
+      posts.value = [];
+      return;
+    }
+
+    posts.value = data;
+  } catch (error) {
+    console.error("Error al cargar los posts:", error);
+    errorMessage.value = "Error al cargar tus publicaciones.";
+    posts.value = [];
   }
-
-  posts.value = data;
 }
 
 function formatDate(date) {
   return date ? new Date(date).toLocaleDateString() : "No disponible";
 }
 
-onMounted(async () => {
-  try {
-    loading.value = true;
+onMounted(() => {
+  unsubscribeFromAuth = subscribeToAuthStateChanges(async newUserState => {
+    user.value = newUserState;
 
-    const result = await getUserProfileById(route.params.id);
-
-    if (!result) {
-      errorMessage.value = "No se encontró este usuario.";
+    if (!user.value || !user.value.id) {
+      errorMessage.value = "No se pudo cargar tu perfil.";
       loading.value = false;
       return;
     }
 
-    user.value = result;
-
     await loadUserPosts();
+    loading.value = false;
+  });
+})
 
-  } catch (error) {
-    console.error("Error loading user profile:", error);
-    errorMessage.value = "Error cargando el perfil del usuario.";
-  }
-
-  loading.value = false;
-});
+onUnmounted(() => {
+  unsubscribeFromAuth();
+})
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-950 text-white px-6 py-12">
 
-    <!--  Loader -->
+    <!-- Loader -->
     <div v-if="loading" class="flex justify-center py-20">
       <div class="animate-spin rounded-full h-12 w-12 border-4 border-turquesa border-t-transparent"></div>
     </div>
 
-    <!--  Estado de error -->
+    <!-- Error de carga -->
     <div v-else-if="errorMessage" class="text-center py-20">
-      <h1 class="text-3xl font-bankgothic text-red-500 mb-4">
-        Error
-      </h1>
+      <h1 class="text-3xl font-bankgothic text-red-500 mb-4">Error</h1>
       <p class="text-gray-400">{{ errorMessage }}</p>
     </div>
 
-    <!--  Vista principal -->
+    <!-- Contenido principal -->
     <div v-else class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
 
-      <!--  H1 semántico que te pidió el profe -->
+      <!-- H1 principal que el profe exige -->
       <h1 class="md:col-span-12 text-4xl font-bankgothic text-turquesa mb-8">
-        Perfil de {{ user.username }}
+        Mi Perfil
       </h1>
 
-      <!-- Columna de perfil -->
+      <!-- Columna del perfil -->
       <div class="space-y-6 md:col-span-6 lg:col-span-4">
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-8 shadow-lg">
           <div class="flex flex-col items-center text-center">
 
             <img
               v-if="user.avatar_url"
-              :src="user.avatar_url"
+              :src="`/img/${user.avatar_url || 'avatar.webp'}`"
               alt="Avatar"
               class="w-32 h-32 rounded-full mb-4 border-4 border-turquesa object-cover"
             />
@@ -95,8 +98,8 @@ onMounted(async () => {
               {{ user.display_name }}
             </h2>
 
-            <p class="text-gray-400 text-sm mb-1">Usuario: @{{ user.username }}</p>
-            <p class="text-gray-400 text-sm mb-4">Email: {{ user.email }}</p>
+            <p class="text-gray-400 text-sm mb-1">@{{ user.username  }}</p>
+            <p class="text-gray-400 text-sm mb-4">{{ user.email }}</p>
 
             <p class="text-lg text-gray-300 mb-2">{{ user.career || 'Carrera no especificada' }}</p>
             <p class="text-sm text-gray-400 mb-4">{{ user.location || 'Ubicación no especificada' }}</p>
@@ -107,18 +110,17 @@ onMounted(async () => {
             >
               Disponible para trabajar
             </span>
-            <hr class="mb-4">
 
             <RouterLink
-              class="block bg-gray-800 text-turquesa px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-              :to="`/usuario/${user.id}/chat`"
+              class="bg-turquesa text-black font-bankgothic px-6 py-2 rounded-lg hover:bg-[#0db38f] transition-colors"
+              to="/mi-perfil/editar"
             >
-              Iniciar conversación privada con {{ user.email }}
+              Editar perfil
             </RouterLink>
           </div>
         </div>
 
-        <!-- Sobre mí, skills, etc. -->
+        <!-- Información secundaria -->
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-8 shadow-lg space-y-6">
           <div>
             <h2 class="text-2xl font-bankgothic text-turquesa mb-2">Sobre mí</h2>
@@ -147,11 +149,7 @@ onMounted(async () => {
           <div v-if="user.skills?.length">
             <h2 class="text-2xl font-bankgothic text-turquesa mb-2">Skills</h2>
             <div class="flex flex-wrap gap-2">
-              <span
-                v-for="skill in user.skills"
-                :key="skill"
-                class="bg-gray-800 text-turquesa text-sm px-3 py-1 rounded-full"
-              >
+              <span v-for="skill in user.skills" :key="skill" class="bg-gray-800 text-turquesa text-sm px-3 py-1 rounded-full">
                 {{ skill }}
               </span>
             </div>
@@ -166,10 +164,11 @@ onMounted(async () => {
         <!-- Redes -->
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-8 shadow-lg">
           <h3 class="text-xl font-bankgothic text-turquesa mb-4">Redes y enlaces</h3>
+
           <div class="space-y-4">
 
             <template v-if="user.github_url">
-              <label class="block text-gray-400 text-sm">GitHub</label>
+              <label class="block text-gray-400 text-sm mb-2">GitHub</label>
               <a
                 :href="user.github_url"
                 class="block bg-gray-800 text-turquesa px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
@@ -180,7 +179,7 @@ onMounted(async () => {
             </template>
 
             <template v-if="user.linkedin_url">
-              <label class="block text-gray-400 text-sm">LinkedIn</label>
+              <label class="block text-gray-400 text-sm mb-2">LinkedIn</label>
               <a
                 :href="user.linkedin_url"
                 class="block bg-gray-800 text-turquesa px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
@@ -191,7 +190,7 @@ onMounted(async () => {
             </template>
 
             <template v-if="user.instagram_url">
-              <label class="block text-gray-400 text-sm">Instagram</label>
+              <label class="block text-gray-400 text-sm mb-2">Instagram</label>
               <a
                 :href="user.instagram_url"
                 class="block bg-gray-800 text-turquesa px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
@@ -199,16 +198,18 @@ onMounted(async () => {
               >
                 {{ user.instagram_url }}
               </a>
+
             </template>
 
           </div>
+
         </div>
       </div>
 
       <!-- Publicaciones -->
       <div class="space-y-6 md:col-span-6 lg:col-span-8">
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-8 shadow-lg">
-          <h2 class="text-3xl font-bankgothic text-turquesa mb-8">Publicaciones</h2>
+          <h2 class="text-3xl font-bankgothic text-turquesa mb-8">Mis publicaciones</h2>
 
           <div v-if="posts.length > 0" class="space-y-6">
             <div
@@ -219,6 +220,7 @@ onMounted(async () => {
               <p class="text-sm text-gray-400 mb-2">
                 Publicado el {{ new Date(post.created_at).toLocaleString() }}
               </p>
+
               <p class="text-lg text-gray-200 mb-4">{{ post.content }}</p>
 
               <img
@@ -237,15 +239,16 @@ onMounted(async () => {
                   {{ tag }}
                 </span>
               </div>
+
             </div>
           </div>
 
           <div v-else class="text-center text-gray-400 py-8">
-            Este usuario aún no ha publicado nada.
+            Aún no publicaste nada.
           </div>
-
         </div>
       </div>
+
     </div>
   </div>
 </template>

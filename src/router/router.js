@@ -2,13 +2,13 @@ import {createRouter, createWebHistory} from "vue-router";
 import {subscribeToAuthStateChanges, waitForAuthInitialization} from "../services/auth";
 
 import Home from "../pages/Home.vue";
-import PostsFeed from "../pages/PostsFeed.vue";
-import Login from "../pages/Login.vue";
-import Register from "../pages/Register.vue";
-import MyProfile from "../pages/MyProfile.vue";
-import MyProfileEdit from "../pages/MyProfileEdit.vue";
-import UserProfile from "../pages/UserProfile.vue";
-import PrivateChat from "../pages/PrivateChat.vue";
+import PostsFeed from "../pages/post/PostsFeed.vue";
+import Login from "../pages/sesion/Login.vue";
+import Register from "../pages/sesion/Register.vue";
+import MyProfile from "../pages/profile/MyProfile.vue";
+import MyProfileEdit from "../pages/profile/MyProfileEdit.vue";
+import UserProfile from "../pages/profile/UserProfile.vue";
+import PrivateChat from "../pages/chat/PrivateChat.vue";
 
 const routes = [
   {path: "/", component: Home},

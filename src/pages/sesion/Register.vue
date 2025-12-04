@@ -1,8 +1,8 @@
 <script setup>
 import {ref} from 'vue';
 import {useRouter} from 'vue-router';
-import {register} from "../services/auth.js";
-import AlertMessage from "../components/AlertMessage.vue";
+import {register} from "../../services/auth.js";
+import AlertMessage from "../../components/AlertMessage.vue";
 
 const router = useRouter();
 

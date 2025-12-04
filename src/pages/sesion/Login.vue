@@ -1,8 +1,8 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { login } from "../services/auth.js";
-import AlertMessage from "../components/AlertMessage.vue";
+import { login } from "../../services/auth.js";
+import AlertMessage from "../../components/AlertMessage.vue";
 
 const user = ref({
   email: "",

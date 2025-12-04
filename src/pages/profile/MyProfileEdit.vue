@@ -1,7 +1,7 @@
 <script setup>
 import {ref, onMounted, onUnmounted} from 'vue'
 import {useRouter} from 'vue-router'
-import {createInitialUserState, subscribeToAuthStateChanges, updateAuthUser} from "../services/auth.js";
+import {createInitialUserState, subscribeToAuthStateChanges, updateAuthUser} from "../../services/auth.js";
 
 const router = useRouter()
 const userData = ref(createInitialUserState())
