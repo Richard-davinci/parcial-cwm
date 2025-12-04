@@ -147,3 +147,31 @@ export async function fetchTotalUsers() {
 }
 
 
+export async function fetchUserPosts(userId) {
+  const {data, error} = await supabase
+    .from('post')
+    .select(`
+      id,
+      content,
+      image_url,
+      tags,
+      created_at,
+      updated_at,
+      user_id,
+      user_profiles (
+        id,
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
+    .eq('user_id', userId)
+    .order('created_at', {ascending: false});
+
+  if (error) {
+    console.error('[posts.js fetchUserPosts] Error al obtener los posts del usuario', userId, error);
+    throw new Error(error.message);
+  }
+
+  return {data, error};
+}

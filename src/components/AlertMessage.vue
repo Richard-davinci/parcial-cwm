@@ -4,7 +4,7 @@ import {ref, computed} from 'vue'
 const props = defineProps({
   type: {
     type: String,
-    default: "info", // success | danger | warning | info
+    default: "info", 
   },
   message: {
     type: String,
@@ -63,24 +63,17 @@ const hasContent = computed(() => {
       'font-bankgothic flex items-start gap-3 animate-fade-in'
     ]"
   >
-    <!-- Icono -->
     <i class="fa-solid" :class="[iconClass, 'text-xl']"></i>
-
-    <!-- Mensaje único -->
     <span v-if="message" class="flex-1">{{ message }}</span>
-
-    <!-- Lista de errores -->
     <ul v-if="errors.length" class="flex-1 list-disc ml-4 space-y-1 text-sm">
       <li v-for="err in errors" :key="err">{{ err }}</li>
     </ul>
-
-    <!-- Botón cerrar -->
     <button
       v-if="closable && !small"
       @click="isVisible = false"
       class="ml-auto text-white/80 hover:text-white transition"
     >
-      ✕
+      <i class="fa-solid fa-xmark"></i>
     </button>
   </div>
 </template>

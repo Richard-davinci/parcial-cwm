@@ -2,7 +2,7 @@
 import {computed, onMounted, ref} from 'vue';
 import {fetchUserChatsWithDetails} from '../services/private-chat.js';
 import {createInitialUserState, subscribeToAuthStateChanges} from '../services/auth.js';
-import { useRouter } from 'vue-router';
+import {useRouter} from 'vue-router';
 
 const router = useRouter();
 
@@ -85,10 +85,8 @@ onMounted(async () => {
 
 <template>
   <div>
-    <!-- Título fuera del card -->
     <h2 class="mb-6 text-3xl font-bankgothic text-turquesa">Chats privados</h2>
-    <!-- Card o contenedor principal -->
-    <div class="bg-gray-900 border border-gray-700 rounded-xl p-4 shadow-md">
+    <div class="bg-gray-900 border border-gray-400 rounded-xl p-4 shadow-md">
       <div class="flex items-center justify-between mb-4">
         <button
           :disabled="loading || !user.id"
@@ -96,26 +94,15 @@ onMounted(async () => {
           title="Actualizar chats"
           @click="loadChats"
         >
-          <svg
-            :class="{'animate-spin': loading}"
-            class="w-4 h-4"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-          </svg>
+          <i :class="{'animate-spin': loading, 'fas fa-sync': true}"
+             class="w-4 h-4"
+          ></i>
         </button>
       </div>
 
-      <!-- Error message -->
+      <!-- Error -->
       <div v-if="errorMessage" class="text-red-400 text-sm mb-4 p-2 bg-red-900/20 rounded">
         {{ errorMessage }}
-      </div>
-
-      <!-- No user logged in -->
-      <div v-if="!user.id" class="text-gray-500 text-sm text-center py-4">
-        Iniciá sesión para ver tus chats
       </div>
 
       <!-- Loading -->
@@ -124,7 +111,7 @@ onMounted(async () => {
         <span class="text-gray-400 text-sm">Cargando chats...</span>
       </div>
 
-      <!-- No chats -->
+      <!-- sin chats -->
       <div v-else-if="!hasChats" class="text-gray-500 text-sm text-center py-4">
         No tenés chats privados aún.
         <br>
@@ -133,7 +120,7 @@ onMounted(async () => {
         </span>
       </div>
 
-      <!-- Chat list -->
+      <!-- LIstado de chats -->
       <div v-else class="space-y-2 max-h-96 overflow-y-auto">
         <div
           v-for="chat in chats"
@@ -148,7 +135,7 @@ onMounted(async () => {
               :src="chat.other_user_profile?.avatar_url || '/img/default-avatar.png'"
               class="w-10 h-10 rounded-full border border-gray-600"
             />
-            <!-- Online indicator (opcional) -->
+            <!-- indicador online  -->
             <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-gray-800 rounded-full"></div>
           </div>
 
@@ -175,31 +162,14 @@ onMounted(async () => {
                   Sin mensajes aún
                 </span>
               </p>
-
-              <!-- Unread indicator (opcional) -->
-              <!-- <div v-if="chat.unread_count" class="bg-turquesa text-black text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
-                {{ chat.unread_count }}
-              </div> -->
             </div>
           </div>
 
           <!-- Arrow icon -->
           <div class="text-gray-500 group-hover:text-turquesa transition flex-shrink-0">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
-            </svg>
+            <i class="fas fa-chevron-right w-4 h-4"></i>
           </div>
         </div>
-      </div>
-
-      <!-- New chat button (opcional) -->
-      <div v-if="user.id && hasChats" class="mt-4 pt-4 border-t border-gray-700">
-        <RouterLink
-          class="block text-center text-turquesa hover:text-white text-sm font-medium py-2 px-3 rounded-lg bg-gray-800 hover:bg-gray-700 transition"
-          to="/usuarios"
-        >
-          + Buscar usuarios
-        </RouterLink>
       </div>
     </div>
   </div>

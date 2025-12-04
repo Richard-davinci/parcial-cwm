@@ -1,13 +1,14 @@
 <script setup>
-import {ref, onMounted, onUnmounted, computed} from 'vue';
+import {computed, onMounted, onUnmounted, ref} from 'vue';
 import {
   createComment,
-  fetchPostComments,
-  updateComment,
   deleteComment,
-  subscribeToPostComments
+  fetchPostComments,
+  subscribeToPostComments,
+  updateComment
 } from '../services/comments.js';
-import {subscribeToAuthStateChanges, createInitialUserState} from '../services/auth.js';
+import {createInitialUserState, subscribeToAuthStateChanges} from '../services/auth.js';
+import AlertMessage from "./AlertMessage.vue";
 
 const props = defineProps({
   postId: {
@@ -32,8 +33,10 @@ const loading = ref(false);
 const loadingSubmit = ref(false);
 const errorMessage = ref('');
 
-let unsubscribeFromAuth = () => {};
-let unsubscribeFromComments = () => {};
+let unsubscribeFromAuth = () => {
+};
+let unsubscribeFromComments = () => {
+};
 
 // Computed
 const canComment = computed(() => user.value.id);
@@ -189,9 +192,8 @@ onUnmounted(() => {
     v-if="showComments"
     class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
   >
-    <div class="bg-gray-900 border border-gray-700 rounded-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
-      <!-- Header -->
-      <div class="flex justify-between items-center p-6 border-b border-gray-700">
+    <div class="bg-gray-900 border border-gray-400 rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+      <div class="flex justify-between items-center px-6 py-2 border-b border-gray-700">
         <h2 class="text-xl font-bankgothic text-turquesa">Comentarios</h2>
         <button
           class="text-2xl text-turquesa hover:text-white transition"
@@ -205,14 +207,15 @@ onUnmounted(() => {
       <AlertMessage
         v-if="errorMessage"
         :message="errorMessage"
-        type="danger"
         class="mx-6 mt-4"
+        type="danger"
       />
 
       <!-- Comments List -->
       <div class="flex-1 overflow-y-auto p-6 space-y-4">
         <div v-if="loading" class="text-center text-gray-400">
-          <div class="animate-spin h-8 w-8 mx-auto border-4 border-turquesa border-t-transparent rounded-full mb-2"></div>
+          <div
+            class="animate-spin h-8 w-8 mx-auto border-4 border-turquesa border-t-transparent rounded-full mb-2"></div>
           Cargando comentarios...
         </div>
 
@@ -221,7 +224,7 @@ onUnmounted(() => {
         </div>
 
         <!-- Comment Item -->
-        <div v-else v-for="comment in comments" :key="comment.id" class="space-y-4">
+        <div v-for="comment in comments" v-else :key="comment.id" class="space-y-4">
           <!-- Main Comment -->
           <div class="bg-gray-800 rounded-lg p-4">
             <div class="flex items-center justify-between mb-3">
@@ -245,18 +248,18 @@ onUnmounted(() => {
               <!-- Actions for owner -->
               <div v-if="isOwner(comment)" class="flex items-center gap-2">
                 <button
-                  @click="startEdit(comment)"
                   class="text-turquesa hover:text-white text-xs p-1 rounded transition"
                   title="Editar"
+                  @click="startEdit(comment)"
                 >
-                  ✏️
+                  <i class="fa-solid fa-pen me-2"></i>
                 </button>
                 <button
-                  @click="handleDelete(comment)"
                   class="text-red-400 hover:text-red-300 text-xs p-1 rounded transition"
                   title="Eliminar"
+                  @click="handleDelete(comment)"
                 >
-                  🗑️
+                  <i class="fa-solid fa-trash me-2"></i>
                 </button>
               </div>
             </div>
@@ -270,15 +273,15 @@ onUnmounted(() => {
               ></textarea>
               <div class="flex gap-2 mt-2">
                 <button
-                  @click="saveEdit"
                   :disabled="loadingSubmit"
                   class="bg-turquesa text-black px-3 py-1 rounded text-sm hover:bg-[#0db38f] disabled:opacity-50"
+                  @click="saveEdit"
                 >
                   Guardar
                 </button>
                 <button
-                  @click="cancelEdit"
                   class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-500"
+                  @click="cancelEdit"
                 >
                   Cancelar
                 </button>
@@ -288,8 +291,8 @@ onUnmounted(() => {
               <p class="text-gray-200 whitespace-pre-line">{{ comment.content }}</p>
               <button
                 v-if="canComment"
-                @click="startReply(comment)"
                 class="text-turquesa hover:text-white text-sm mt-2 transition"
+                @click="startReply(comment)"
               >
                 Responder
               </button>
@@ -319,16 +322,16 @@ onUnmounted(() => {
 
                   <div v-if="isOwner(reply)" class="flex items-center gap-1">
                     <button
-                      @click="startEdit(reply)"
                       class="text-turquesa hover:text-white text-xs p-1 rounded transition"
+                      @click="startEdit(reply)"
                     >
-                      ✏️
+                      <i class="fa-solid fa-pen me-2"></i>
                     </button>
                     <button
-                      @click="handleDelete(reply)"
                       class="text-red-400 hover:text-red-300 text-xs p-1 rounded transition"
+                      @click="handleDelete(reply)"
                     >
-                      🗑️
+                      <i class="fa-solid fa-trash me-2"></i>
                     </button>
                   </div>
                 </div>
@@ -341,15 +344,15 @@ onUnmounted(() => {
                   ></textarea>
                   <div class="flex gap-2 mt-2">
                     <button
-                      @click="saveEdit"
                       :disabled="loadingSubmit"
                       class="bg-turquesa text-black px-2 py-1 rounded text-xs hover:bg-[#0db38f] disabled:opacity-50"
+                      @click="saveEdit"
                     >
                       Guardar
                     </button>
                     <button
-                      @click="cancelEdit"
                       class="bg-gray-500 text-white px-2 py-1 rounded text-xs hover:bg-gray-400"
+                      @click="cancelEdit"
                     >
                       Cancelar
                     </button>
@@ -370,8 +373,8 @@ onUnmounted(() => {
               Respondiendo a @{{ replyToComment.user_profiles?.username }}
             </span>
             <button
-              @click="cancelReply"
               class="text-gray-500 hover:text-white text-sm"
+              @click="cancelReply"
             >
               ✕
             </button>
@@ -385,20 +388,19 @@ onUnmounted(() => {
             class="w-8 h-8 rounded-full border border-gray-600 flex-shrink-0"
           />
           <div class="flex-1">
-            <textarea
-              v-model="newComment"
-              :placeholder="canComment ? 'Escribí un comentario...' : 'Iniciá sesión para comentar'"
-              :disabled="!canComment"
-              class="w-full bg-gray-800 text-white p-3 rounded-lg border border-gray-700 focus:ring-2 focus:ring-turquesa resize-none disabled:opacity-50"
-              rows="3"
-              @keydown.ctrl.enter="handleCreateComment"
-            ></textarea>
-            <div class="flex justify-between items-center mt-2">
-              <span class="text-xs text-gray-500">Ctrl + Enter para enviar</span>
+            <div class="flex items-center gap-2">
+              <textarea
+                v-model="newComment"
+                :disabled="!canComment"
+                :placeholder="canComment ? 'Escribí un comentario...' : 'Iniciá sesión para comentar'"
+                class="flex-1 bg-gray-800 text-white p-3 rounded-lg border border-gray-700 focus:ring-2 focus:ring-turquesa resize-none disabled:opacity-50"
+                rows="1"
+                @keydown.ctrl.enter="handleCreateComment"
+              ></textarea>
               <button
-                @click="handleCreateComment"
                 :disabled="!canComment || !newComment.trim() || loadingSubmit"
-                class="bg-turquesa text-black px-4 py-2 rounded-lg hover:bg-[#0db38f] disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition"
+                class="bg-turquesa text-black px-4 py-2 rounded-lg hover:bg-[#0db38f] disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition h-fit"
+                @click="handleCreateComment"
               >
                 <span v-if="loadingSubmit">Enviando...</span>
                 <span v-else>{{ replyToComment ? 'Responder' : 'Comentar' }}</span>

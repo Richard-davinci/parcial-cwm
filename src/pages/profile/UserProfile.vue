@@ -1,18 +1,25 @@
 <script setup>
-import {ref, onMounted} from 'vue';
-import {useRoute} from 'vue-router';
-import {getUserProfileById} from "../../services/user-profiles.js";
-import {createInitialUserState} from "../../services/auth.js";
-import {fetchUserPosts} from "../../services/posts.js";
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { getUserProfileById } from "../../services/user-profiles.js";
+import { createInitialUserState, subscribeToAuthStateChanges } from "../../services/auth.js";
+import { fetchUserPosts } from "../../services/posts.js";
+import { getCommentsCount } from '../../services/comments.js';
+import PostCard from '../../components/PostCard.vue';
+import PostComments from '../../components/PostComments.vue';
 
 const route = useRoute();
+const currentUser = ref(createInitialUserState());
 const user = ref(createInitialUserState());
 const posts = ref([]);
 const loading = ref(true);
 const errorMessage = ref('');
+const commentsCount = ref({});
+const showCommentsModal = ref(false);
+const selectedPostId = ref(null);
 
 async function loadUserPosts() {
-  const {data, error} = await fetchUserPosts(user.value.id);
+  const { data, error } = await fetchUserPosts(user.value.id);
 
   if (error) {
     errorMessage.value = "No se pudieron cargar las publicaciones.";
@@ -20,6 +27,30 @@ async function loadUserPosts() {
   }
 
   posts.value = data;
+  await loadCommentsCount();
+}
+
+// Cargar contador de comentarios
+async function loadCommentsCount() {
+  for (const post of posts.value) {
+    try {
+      const count = await getCommentsCount(post.id);
+      commentsCount.value[post.id] = count;
+    } catch (error) {
+      console.error('Error al cargar contador de comentarios:', error);
+    }
+  }
+}
+
+// Abrir comentarios
+function openComments(post) {
+  selectedPostId.value = post.id;
+  showCommentsModal.value = true;
+}
+
+function closeComments() {
+  showCommentsModal.value = false;
+  selectedPostId.value = null;
 }
 
 function formatDate(date) {
@@ -28,6 +59,10 @@ function formatDate(date) {
 
 onMounted(async () => {
   try {
+    subscribeToAuthStateChanges(
+      (newUserState) => (currentUser.value = newUserState)
+    );
+
     loading.value = true;
 
     const result = await getUserProfileById(route.params.id);
@@ -70,9 +105,9 @@ onMounted(async () => {
     <!--  Vista principal -->
     <div v-else class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
 
-      <!--  H1 semántico que te pidió el profe -->
+      <!--  H1 semántico -->
       <h1 class="md:col-span-12 text-4xl font-bankgothic text-turquesa mb-8">
-        Perfil de {{ user.username }}
+        Perfil de {{ user.display_name || user.username }}
       </h1>
 
       <!-- Columna de perfil -->
@@ -210,42 +245,33 @@ onMounted(async () => {
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-8 shadow-lg">
           <h2 class="text-3xl font-bankgothic text-turquesa mb-8">Publicaciones</h2>
 
-          <div v-if="posts.length > 0" class="space-y-6">
-            <div
+          <div v-if="posts.length > 0" class="space-y-5">
+            <PostCard
               v-for="post in posts"
               :key="post.id"
-              class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow hover:border-gray-600 transition"
-            >
-              <p class="text-sm text-gray-400 mb-2">
-                Publicado el {{ new Date(post.created_at).toLocaleString() }}
-              </p>
-              <p class="text-lg text-gray-200 mb-4">{{ post.content }}</p>
-
-              <img
-                v-if="post.image_url"
-                :src="post.image_url"
-                alt="Imagen del post"
-                class="w-full rounded-lg mb-4 object-cover"
-              />
-
-              <div v-if="post.tags?.length" class="flex flex-wrap gap-2">
-                <span
-                  v-for="tag in post.tags"
-                  :key="tag"
-                  class="bg-gray-700 text-turquesa text-xs px-3 py-1 rounded-full"
-                >
-                  {{ tag }}
-                </span>
-              </div>
-            </div>
+              :post="post"
+              :comments-count="commentsCount[post.id] || 0"
+              :current-user-id="currentUser.id"
+              :show-user-link="false"
+              @comments="openComments"
+            />
           </div>
 
           <div v-else class="text-center text-gray-400 py-8">
-            Este usuario aún no ha publicado nada.
+            <i class="fa-solid fa-inbox text-4xl mb-3 opacity-50"></i>
+            <p>Este usuario aún no ha publicado nada.</p>
           </div>
 
         </div>
       </div>
     </div>
+
+    <!-- Modal de Comentarios -->
+    <PostComments
+      v-if="selectedPostId"
+      :post-id="selectedPostId"
+      :show-comments="showCommentsModal"
+      @close="closeComments"
+    />
   </div>
 </template>

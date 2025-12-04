@@ -76,14 +76,14 @@ onMounted(async () => {
     );
 
     const lastMessages = await fetchLastPrivateChatMessages(user.value.id, route.params.id);
-    messages.value = lastMessages;
+    messages.value = lastMessages.reverse(); // ← Agregá esto si es necesario
+
+    await scrollToBottom();
     loadingMessages.value = false;
 
-    await nextTick();
-    chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
-
   } catch (error) {
-    // TODO...
+    console.error('[PrivateChat.vue] Error handling submit:', error);
+    loadingMessages.value = false;
   }
   loadingUser.value = false;
   loadingMessages.value = false;
