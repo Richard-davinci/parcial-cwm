@@ -14,6 +14,7 @@ const errorMessage = ref('');
 let unsubscribeFromAuth = () => {
 };
 
+// para revisar si hay chats disponibles
 const hasChats = computed(() => chats.value.length > 0);
 
 async function loadChats() {
@@ -42,6 +43,13 @@ function goToChat(otherUserId) {
   router.push(`/usuario/${otherUserId}/chat`);
 }
 
+/**
+ * Formatea la fecha del último mensaje
+ * Si el mensaje es de hoy, muestra la hora (HH:mm)
+ * Si el mensaje es de otro día, muestra la fecha (dd/mm)
+ * @param {string} date - Fecha del mensaje en formato ISO
+ * @returns {string} Fecha formateada
+ */
 function formatLastMessageTime(date) {
   if (!date) return '';
 
@@ -62,6 +70,12 @@ function formatLastMessageTime(date) {
   }
 }
 
+/**
+ * Trunca un mensaje si excede la longitud máxima
+ * @param {string} message - Mensaje a truncar
+ * @param {number} maxLength - Longitud máxima permitida
+ * @returns {string} Mensaje truncado
+ */
 function truncateMessage(message, maxLength = 40) {
   if (!message) return '';
   return message.length > maxLength
@@ -128,14 +142,14 @@ onMounted(async () => {
           class="flex items-center gap-3 p-3 rounded-lg bg-gray-800 hover:bg-gray-700 cursor-pointer transition group"
           @click="goToChat(chat.other_user_id)"
         >
-          <!-- Avatar -->
+          <!-- imagen de perfil(falta terminar) -->
           <div class="relative flex-shrink-0">
             <img
               :alt="chat.other_user_profile?.username || 'Usuario'"
               :src="chat.other_user_profile?.avatar_url || '/img/default-avatar.png'"
               class="w-10 h-10 rounded-full border border-gray-600"
             />
-            <!-- indicador online  -->
+            <!-- indicador online(dalta terminar)  -->
             <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-gray-800 rounded-full"></div>
           </div>
 
@@ -165,7 +179,6 @@ onMounted(async () => {
             </div>
           </div>
 
-          <!-- Arrow icon -->
           <div class="text-gray-500 group-hover:text-turquesa transition flex-shrink-0">
             <i class="fas fa-chevron-right w-4 h-4"></i>
           </div>

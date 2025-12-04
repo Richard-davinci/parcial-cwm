@@ -1,5 +1,5 @@
 <script setup>
-import {ref, onMounted} from 'vue';
+import {onMounted, ref} from 'vue';
 import {useRouter} from 'vue-router';
 import {logout, subscribeToAuthStateChanges} from "../services/auth";
 
@@ -10,7 +10,6 @@ const user = ref({
   email: null,
 });
 
-// Logout states
 const logoutLoading = ref(false);
 const showLogoutConfirm = ref(false);
 const logoutError = ref("");
@@ -62,7 +61,6 @@ onMounted(() => {
       Lili-Studio Comunidad
     </RouterLink>
 
-    <!-- Desktop Menu -->
     <ul class="hidden md:flex items-center gap-6 font-bankgothic">
       <li>
         <RouterLink
@@ -74,7 +72,7 @@ onMounted(() => {
         </RouterLink>
       </li>
 
-      <!-- SI NO ESTÁ LOGUEADO -->
+      <!-- SI NO ESTOY LOGUEADO -->
       <template v-if="user.id === null">
         <li>
           <RouterLink
@@ -118,7 +116,7 @@ onMounted(() => {
           <button
             class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-700 hover:text-turquesa transition-colors duration-200"
           >
-            <img alt="Avatar" class="w-8 h-8 rounded-full" src="/img/ricardo.webp" />
+            <img alt="Avatar" class="w-8 h-8 rounded-full" src="/img/ricardo.webp"/>
             <span class="font-bankgothic">Mi cuenta</span>
           </button>
 
@@ -146,7 +144,7 @@ onMounted(() => {
       </template>
     </ul>
 
-    <!-- Hamburger Menu -->
+    <!-- Menu -->
     <button
       :aria-expanded="menuOpen ? 'true' : 'false'"
       aria-label="Abrir menú"
@@ -250,9 +248,7 @@ onMounted(() => {
     </div>
   </transition>
 
-  <!-- ===================================== -->
-  <!-- MODAL DE CONFIRMACIÓN DE LOGOUT -->
-  <!-- ===================================== -->
+  <!-- MODAL  LOGOUT -->
   <transition name="fade">
     <div
       v-if="showLogoutConfirm"
@@ -273,17 +269,17 @@ onMounted(() => {
 
         <div class="flex gap-4">
           <button
+            :disabled="logoutLoading"
             class="flex-1 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition"
             @click="showLogoutConfirm = false"
-            :disabled="logoutLoading"
           >
             Cancelar
           </button>
 
           <button
+            :disabled="logoutLoading"
             class="flex-1 py-2 bg-turquesa text-black rounded-lg hover:bg-[#0db38f] transition flex items-center justify-center gap-2"
             @click="handleLogout"
-            :disabled="logoutLoading"
           >
             <span v-if="!logoutLoading">Cerrar sesión</span>
 

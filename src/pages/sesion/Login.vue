@@ -56,7 +56,7 @@ async function handleSubmit() {
           <input
             id="email"
             v-model="user.email"
-            class="w-full px-4 py-2 rounded-lg bg-white border border-gray-700 focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white placeholder-gray-500"
+            class="w-full px-4 py-2 rounded-lg  border border-gray-700 focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white placeholder-gray-500"
             placeholder="tu@email.com"
             type="email"
           />
@@ -67,7 +67,7 @@ async function handleSubmit() {
           <input
             id="password"
             v-model="user.password"
-            class="w-full px-4 py-2 rounded-lg bg-white border border-gray-700 focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white placeholder-gray-500"
+            class="w-full px-4 py-2 rounded-lg  border border-gray-700 focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white placeholder-gray-500"
             placeholder="••••••••"
             type="password"
           />

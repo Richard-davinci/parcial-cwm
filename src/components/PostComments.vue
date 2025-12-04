@@ -192,7 +192,7 @@ onUnmounted(() => {
     v-if="showComments"
     class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
   >
-    <div class="bg-gray-900 border border-gray-400 rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+    <div class="bg-gray-900 border border-gray-400 rounded-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
       <div class="flex justify-between items-center px-6 py-2 border-b border-gray-700">
         <h2 class="text-xl font-bankgothic text-turquesa">Comentarios</h2>
         <button

@@ -44,7 +44,6 @@ function formatDate(dateString) {
   <div
     class="bg-gray-900 border border-gray-400 rounded-xl p-4 shadow-md hover:shadow-lg transition-all"
   >
-    <!-- Encabezado: Avatar, usuario y fecha -->
     <div class="flex items-center gap-3">
       <!-- Si showUserLink es true, mostrar RouterLink, si no mostrar solo div -->
       <RouterLink
@@ -66,31 +65,30 @@ function formatDate(dateString) {
             </span>
         </div>
       </RouterLink>    
-      <!-- Botones de editar/eliminar -->
       <div v-if="isOwner" class="flex items-center gap-2 ml-auto">
         <button
           class="text-turquesa hover:text-white text-sm p-2 rounded-full hover:bg-gray-800 transition"
           title="Editar publicación"
-          @click="$emit('edit')"
+          @click="$emit('edit', post)"
         >
           <i class="fa-solid fa-pen"></i>
         </button>
         <button
           class="text-red-400 hover:text-red-300 text-sm p-2 rounded-full hover:bg-gray-800 transition"
           title="Eliminar publicación"
-          @click="$emit('delete')"
+          @click="$emit('delete', post)"
         >
           <i class="fa-solid fa-trash"></i>
         </button>
       </div>
     </div>
 
-    <!-- Contenido del post -->
+    <!-- Contenido -->
     <p class="text-base text-gray-200 mb-3 whitespace-pre-line leading-relaxed">
       {{ post.content }}
     </p>
 
-    <!-- Imagen del post -->
+    <!-- Imagen(falta terminar y agregar el input imagen) -->
     <div v-if="post.image_url" class="mb-3 max-h-[400px] overflow-hidden rounded-lg">
       <img
         :src="post.image_url"
@@ -112,7 +110,7 @@ function formatDate(dateString) {
     </div>
 
 
-  <!-- Footer: Comentarios -->
+  <!-- Comentarios -->
   <div class="flex items-center gap-4 pt-3 border-t border-gray-700">
     <button
       class="flex items-center gap-2 text-gray-400 hover:text-turquesa transition duration-200"

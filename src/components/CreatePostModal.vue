@@ -29,7 +29,6 @@ function handleSubmit() {
       : [],
   });
 
-  // Limpiar formulario
   formData.value.content = '';
   formData.value.image_url = '';
   formData.value.tags = '';

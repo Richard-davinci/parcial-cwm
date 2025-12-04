@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
   show: {
@@ -24,20 +24,17 @@ const formData = ref({
   tags: '',
 });
 
-// Cargar datos del post cuando se abre el modal
-watch(
-  () => props.post,
-  (newPost) => {
-    if (newPost) {
-      formData.value = {
-        content: newPost.content || '',
-        image_url: newPost.image_url || '',
-        tags: Array.isArray(newPost.tags) ? newPost.tags.join(", ") : '',
-      };
-    }
-  },
-  { deep: true }
-);
+// Computed que retorna los datos del post listos para el formulario
+const postData = computed(() => {
+  if (props.show && props.post) {
+    formData.value = {
+      content: props.post.content || '',
+      image_url: props.post.image_url || '',
+      tags: Array.isArray(props.post.tags) ? props.post.tags.join(", ") : '',
+    };
+  }
+  return formData.value;
+});
 
 function handleSubmit() {
   emit('submit', {

@@ -73,7 +73,7 @@ const handleSubmit = async () => {
           <input
             id="username"
             v-model="user.username"
-            class="w-full px-4 py-2 rounded-lg bg-white border border-gray-700
+            class="w-full px-4 py-2 rounded-lg  border border-gray-700
                    focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white"
             type="text"
           />
@@ -86,7 +86,7 @@ const handleSubmit = async () => {
           <input
             id="display_name"
             v-model="user.display_name"
-            class="w-full px-4 py-2 rounded-lg bg-white border border-gray-700
+            class="w-full px-4 py-2 rounded-lg  border border-gray-700
                    focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white"
             type="text"
           />
@@ -99,7 +99,7 @@ const handleSubmit = async () => {
           <input
             id="email"
             v-model="user.email"
-            class="w-full px-4 py-2 rounded-lg bg-white border border-gray-700
+            class="w-full px-4 py-2 rounded-lg white border border-gray-700
                    focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white"
             placeholder="lili-studio@email.com"
             type="email"
@@ -113,7 +113,7 @@ const handleSubmit = async () => {
           <input
             id="password"
             v-model="user.password"
-            class="w-full px-4 py-2 rounded-lg bg-white border border-gray-700
+            class="w-full px-4 py-2 rounded-lg  border border-gray-700
                    focus:border-turquesa focus:ring-2 focus:ring-turquesa text-white"
             placeholder="••••••••"
             type="password"

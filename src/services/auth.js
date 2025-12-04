@@ -1,17 +1,11 @@
-/**
- * ===========================================================
- * services/auth.js — Servicio de autenticación
- * ===========================================================
- */
 import {supabase} from './supabase.js';
 import {createUserProfile, getUserProfileById, updateUserProfile} from "./user-profiles";
 
 let user = createInitialUserState();
 let observers = [];
-let isInitialized = false; // Nueva bandera para controlar la inicialización
-let initPromise = null; // Promise para la inicialización
+let isInitialized = false;
+let initPromise = null;
 
-// Inicializar automáticamente
 initPromise = loadCurrentUserAuthState();
 
 async function loadCurrentUserAuthState() {
@@ -42,7 +36,6 @@ async function loadCurrentUserAuthState() {
   }
 }
 
-// Nueva función para esperar la inicialización
 export async function waitForAuthInitialization() {
   if (!isInitialized) {
     await initPromise;
@@ -59,8 +52,7 @@ async function fetchFullProfile() {
 }
 
 export async function register({email, password, username, display_name}) {
-
-  // Validar username duplicado
+//valido si el username esta duplicado
   const {data: existingUser, error: usernameCheckError} = await supabase
     .from("user_profiles")
     .select("id")
@@ -85,7 +77,6 @@ export async function register({email, password, username, display_name}) {
     throw new Error(error.message);
   }
 
-  // Crear perfil usando tu función ya existente
   await createUserProfile({
     id: data.user.id,
     email: data.user.email,
@@ -101,7 +92,6 @@ export async function register({email, password, username, display_name}) {
   });
   return {success: true};
 }
-
 
 export async function login(email, password) {
   const {data, error} = await supabase.auth.signInWithPassword({
@@ -129,11 +119,9 @@ export async function logout() {
   });
 }
 
-
 export async function updateAuthUser(data) {
   try {
 
-    // Seguridad: el usuario debe estar cargado
     if (!user.id) throw new Error("Usuario no autenticado");
 
     const profileUpdate = {
@@ -158,7 +146,6 @@ export async function updateAuthUser(data) {
 
     await updateUserProfile(user.id, profileUpdate);
 
-    // Refrescar store global
     setUser({
       ...user,
       ...profileUpdate,

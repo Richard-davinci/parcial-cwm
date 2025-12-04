@@ -145,7 +145,6 @@ export async function fetchUserPrivateChats(userId) {
   const uniqueChats = [];
 
   for (const chat of data || []) {
-    // Crear clave única (siempre en el mismo orden)
     const key = [chat.user_id1, chat.user_id2].sort().join('|');
     
     if (!seenChats.has(key)) {
@@ -195,7 +194,7 @@ export async function fetchUserChatsWithDetails(userId) {
 
       console.log('fetchUserChatsWithDetails: Perfil obtenido:', userProfile);
 
-      // Obtener último mensaje del chat
+      // Obteno ultimo mensaje del chat
       const {data: lastMessage, error: messageError} = await supabase
         .from('private_chat_messages')
         .select('content, created_at, sender_id')
@@ -236,21 +235,4 @@ export async function fetchUserChatsWithDetails(userId) {
     console.error('[private-chat.js fetchUserChatsWithDetails] Error:', error);
     throw error;
   }
-}
-
-// Obtener contador de mensajes no leídos
-export async function getUnreadMessagesCount(chatId, userId) {
-  const {count, error} = await supabase
-    .from('private_chat_messages')
-    .select('*', {count: 'exact', head: true})
-    .eq('chat_id', chatId)
-    .neq('sender_id', userId)
-    .eq('is_read', false); // Necesitarías agregar este campo a tu tabla
-
-  if (error) {
-    console.error('[private-chat.js getUnreadMessagesCount] Error:', error);
-    return 0;
-  }
-
-  return count || 0;
 }

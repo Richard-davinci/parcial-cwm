@@ -1,6 +1,5 @@
 import {supabase} from './supabase.js';
 
-
 export async function createPost({content, image_url = '', tags = []}) {
   const user = await supabase.auth.getUser();
 
@@ -84,7 +83,7 @@ export async function fetchUserPosts(userId) {
 
   return {data, error};
 }
-
+//actualizar el post
 export async function updatePost(postId, {content, image_url = '', tags = []}) {
   const user = await supabase.auth.getUser();
 
@@ -92,7 +91,6 @@ export async function updatePost(postId, {content, image_url = '', tags = []}) {
     throw new Error('Usuario no autenticado');
   }
 
-  // Validar que postId no sea undefined o null
   if (!postId) {
     throw new Error('ID del post no válido');
   }
@@ -101,7 +99,7 @@ export async function updatePost(postId, {content, image_url = '', tags = []}) {
     .from('post')
     .update({
       content,
-      image_url: image_url || null, // Convertir string vacío a null
+      image_url: image_url || null,
       tags,
       updated_at: new Date().toISOString()
     })
